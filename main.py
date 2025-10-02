@@ -6,6 +6,11 @@ if __name__ == "__main__":
     app = QApplication([])
     app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
     app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+
+    screen = app.primaryScreen()
+    size = screen.size()
+
     window = HomeWindow()
+    window.resize(size * 0.8)
     window.show()
     app.exec()
