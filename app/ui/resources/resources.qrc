@@ -1,0 +1,30 @@
+<RCC>
+  <qresource prefix="resources">
+    <file>images/logo.png</file>
+    <file>images/black_close.png</file>
+    <file>images/black_chatbot.png</file>
+    <file>images/white_chatbot.png</file>
+    <file>images/black_wallet.png</file>
+    <file>images/white_wallet.png</file>
+    <file>images/black_dashboard.png</file>
+    <file>images/white_dashboard.png</file>
+    <file>images/black_down_arrow.png</file>
+    <file>images/black_up_arrow.png</file>
+    <file>images/transport.png</file>
+    <file>images/food.png</file>
+    <file>images/entertainment.png</file>
+    <file>images/clothes.png</file>
+    <file>images/medical.png</file>
+    <file>images/travel.png</file>
+    <file>images/household.png</file>
+    <file>images/education.png</file>
+    <file>images/cosmetic.png</file>
+    <file>images/transport.png</file>
+    <file>images/gift.png</file>
+    <file>images/other.png</file>
+    <file>images/salary.png</file>
+    <file>images/business.png</file>
+    <file>images/investment.png</file>
+    
+  </qresource>
+</RCC>
