@@ -70,7 +70,7 @@
       <string>Hỏi trợ lí ảo bất cứ thứ gì về tài chính</string>
      </property>
      <property name="clearButtonEnabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>

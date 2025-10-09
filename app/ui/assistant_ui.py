@@ -63,7 +63,7 @@ class Ui_AssistantPage(object):
         font = QFont()
         font.setPointSize(12)
         self.inputTbox.setFont(font)
-        self.inputTbox.setClearButtonEnabled(True)
+        self.inputTbox.setClearButtonEnabled(False)
 
         self.verticalLayout.addWidget(self.inputTbox)
 
