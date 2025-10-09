@@ -1,0 +1,40 @@
+<RCC>
+  <qresource prefix="resources">
+    <file>images/logo.png</file>
+    <file>images/black_close.png</file>
+    <file>images/black_chatbot.png</file>
+    <file>images/white_chatbot.png</file>
+    <file>images/black_wallet.png</file>
+    <file>images/white_wallet.png</file>
+    <file>images/black_dashboard.png</file>
+    <file>images/white_dashboard.png</file>
+    <file>images/black_down_arrow.png</file>
+    <file>images/black_up_arrow.png</file>
+    <file>images/black_left_arrow.png</file>
+    <file>images/black_right_arrow.png</file>
+    <file>images/transport.png</file>
+    <file>images/food.png</file>
+    <file>images/shopping.png</file>
+    <file>images/medical.png</file>
+    <file>images/travel.png</file>
+    <file>images/household.png</file>
+    <file>images/education.png</file>
+    <file>images/transport.png</file>
+    <file>images/gift.png</file>
+    <file>images/other.png</file>
+    <file>images/salary.png</file>
+    <file>images/business.png</file>
+    <file>images/investment.png</file>
+    <file>images/allowance.png</file>
+    <file>images/white_income.png</file>
+    <file>images/white_expense.png</file>
+    <file>images/white_transaction_find.png</file>
+    <file>images/empty.png</file>
+    <file>images/search.png</file>
+    <file>images/chatbot.png</file>
+    
+    <file>fonts/Roboto-Regular.ttf</file>
+    <file>fonts/Roboto-Bold.ttf</file>
+    <file>fonts/Roboto-Medium.ttf</file>
+  </qresource>
+</RCC>

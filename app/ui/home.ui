@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1744</width>
-    <height>748</height>
+    <width>1544</width>
+    <height>862</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,13 +21,60 @@
 	border-radius: 10px;
 }
 
-#windowWidget {
+QScrollBar
+{
+	background-color: rgb(180, 180, 180);
+	border:1px transparent;
+	border-radius:3px;
+}
+QScrollBar::handle
+{
+	background-color: rgb(122, 122, 122);
+	border-radius:3px;
+}
+QScrollBar::sub-page
+{
+	background: none;
+	width: 0px;
+	height: 0px;
+}
+QScrollBar::add-page
+{
+	background: none;
+	width: 0px;
+	height: 0px;
+}
+
+QScrollBar::sub-line
+{
+	background: none;
+	width: 0px;
+	height: 0px;
+}
+QScrollBar::add-line
+{
+	background: none;
+	width: 0px;
+	height: 0px;
+}
+
+QScrollBar:vertical {
+	witdh: 6px;
+}
+
+QScrollBar:horizontal {
+	height: 6px
+}</string>
+  </property>
+  <widget class="QWidget" name="windowWidget">
+   <property name="styleSheet">
+    <string notr="true">#windowWidget {
 	background-color: rgb(240, 240, 240);
 	border: 0px;
 	border-radius: 10px;
 }
 
-#panelWidget {
+#navigationPanel {
 	background-color: rgb(29, 29, 29);
 	border-radius: 10px;
 }
@@ -37,7 +84,7 @@
 	margin-top:30px
 }
 
-#panelWidget &gt; QPushButton {
+#navigationPanel &gt; QPushButton {
 	background-color: rgb(29, 29, 29);
 	color: rgb(240, 240, 240);
 	text-align: left;
@@ -45,7 +92,7 @@
 	
 }
 
-#panelWidget &gt; QPushButton[selected=&quot;true&quot;] {
+#navigationPanel &gt; QPushButton[selected=&quot;true&quot;] {
 	background-color: rgb(21, 142, 176)
 }
 
@@ -71,8 +118,7 @@
 	background-color : rgb(240, 240, 240);
 	border-bottom-right-radius:10px
 }</string>
-  </property>
-  <widget class="QWidget" name="windowWidget">
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,3">
     <property name="spacing">
      <number>0</number>
@@ -90,7 +136,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QWidget" name="panelWidget" native="true">
+     <widget class="QWidget" name="navigationPanel" native="true">
       <property name="minimumSize">
        <size>
         <width>300</width>
@@ -134,7 +180,7 @@
           <enum>Qt::TextFormat::MarkdownText</enum>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources/resources.qrc">:/resources/images/logo.png</pixmap>
+          <pixmap resource="../resources/resources.qrc">:/resources/images/logo.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -159,7 +205,7 @@
           <string>   Tổng quan</string>
          </property>
          <property name="icon">
-          <iconset resource="resources/resources.qrc">
+          <iconset resource="../resources/resources.qrc">
            <normaloff>:/resources/images/white_dashboard.png</normaloff>:/resources/images/white_dashboard.png</iconset>
          </property>
          <property name="iconSize">
@@ -172,12 +218,12 @@
           <bool>true</bool>
          </property>
          <property name="selected" stdset="0">
-          <string/>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="managementBtn">
+        <widget class="QPushButton" name="managerBtn">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -194,7 +240,7 @@
           <string>   Quản lí</string>
          </property>
          <property name="icon">
-          <iconset resource="resources/resources.qrc">
+          <iconset resource="../resources/resources.qrc">
            <normaloff>:/resources/images/white_wallet.png</normaloff>:/resources/images/white_wallet.png</iconset>
          </property>
          <property name="iconSize">
@@ -207,7 +253,7 @@
           <bool>true</bool>
          </property>
          <property name="selected" stdset="0">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -229,7 +275,7 @@
           <string>   Chat với trợ lí ảo</string>
          </property>
          <property name="icon">
-          <iconset resource="resources/resources.qrc">
+          <iconset resource="../resources/resources.qrc">
            <normaloff>:/resources/images/white_chatbot.png</normaloff>:/resources/images/white_chatbot.png</iconset>
          </property>
          <property name="iconSize">
@@ -237,6 +283,9 @@
            <width>32</width>
            <height>32</height>
           </size>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -295,6 +344,25 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QLabel" name="pageIconLb">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="pageNameLb">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -340,7 +408,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources/resources.qrc">
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/resources/images/black_close.png</normaloff>:/resources/images/black_close.png</iconset>
            </property>
            <property name="iconSize">
@@ -358,8 +426,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="pageContainer" native="true">
-        <layout class="QVBoxLayout" name="pageContainerLayout"/>
+       <widget class="QStackedWidget" name="pageContainer">
+        <widget class="QWidget" name="pageContainerPage1">
+         <layout class="QVBoxLayout" name="pageContainerLayout"/>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -368,7 +438,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

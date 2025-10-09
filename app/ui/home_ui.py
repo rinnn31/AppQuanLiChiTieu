@@ -16,27 +16,73 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMainWindow,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
-import app.ui.resources.resources_rc
+    QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
+    QVBoxLayout, QWidget)
+import resources.resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setWindowModality(Qt.WindowModality.WindowModal)
-        MainWindow.resize(1744, 748)
+        MainWindow.resize(1544, 862)
         MainWindow.setStyleSheet(u"QMainWindow {\n"
 "	border-radius: 10px;\n"
 "}\n"
 "\n"
-"#windowWidget {\n"
+"QScrollBar\n"
+"{\n"
+"	background-color: rgb(180, 180, 180);\n"
+"	border:1px transparent;\n"
+"	border-radius:3px;\n"
+"}\n"
+"QScrollBar::handle\n"
+"{\n"
+"	background-color: rgb(122, 122, 122);\n"
+"	border-radius:3px;\n"
+"}\n"
+"QScrollBar::sub-page\n"
+"{\n"
+"	background: none;\n"
+"	width: 0px;\n"
+"	height: 0px;\n"
+"}\n"
+"QScrollBar::add-page\n"
+"{\n"
+"	background: none;\n"
+"	width: 0px;\n"
+"	height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::sub-line\n"
+"{\n"
+"	background: none;\n"
+"	width: 0px;\n"
+"	height: 0px;\n"
+"}\n"
+"QScrollBar::add-line\n"
+"{\n"
+"	background: none;\n"
+"	width: 0px;\n"
+"	height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"	witdh: 6px;\n"
+"}\n"
+"\n"
+"QScrollBar:horizontal {\n"
+"	height: 6px\n"
+"}")
+        self.windowWidget = QWidget(MainWindow)
+        self.windowWidget.setObjectName(u"windowWidget")
+        self.windowWidget.setStyleSheet(u"#windowWidget {\n"
 "	background-color: rgb(240, 240, 240);\n"
 "	border: 0px;\n"
 "	border-radius: 10px;\n"
 "}\n"
 "\n"
-"#panelWidget {\n"
+"#navigationPanel {\n"
 "	background-color: rgb(29, 29, 29);\n"
 "	border-radius: 10px;\n"
 "}\n"
@@ -46,7 +92,7 @@ class Ui_MainWindow(object):
 "	margin-top:30px\n"
 "}\n"
 "\n"
-"#panelWidget > QPushButton {\n"
+"#navigationPanel > QPushButton {\n"
 "	background-color: rgb(29, 29, 29);\n"
 "	color: rgb(240, 240, 240);\n"
 "	text-align: left;\n"
@@ -54,7 +100,7 @@ class Ui_MainWindow(object):
 "	\n"
 "}\n"
 "\n"
-"#panelWidget > QPushButton[selected=\"true\"] {\n"
+"#navigationPanel > QPushButton[selected=\"true\"] {\n"
 "	background-color: rgb(21, 142, 176)\n"
 "}\n"
 "\n"
@@ -77,24 +123,22 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "#pageContainer {\n"
-"	background-color : rgb(240, 240, 240)"
-                        ";\n"
+"	background-color : rgb(240, 240, 240);\n"
 "	border-bottom-right-radius:10px\n"
-"}")
-        self.windowWidget = QWidget(MainWindow)
-        self.windowWidget.setObjectName(u"windowWidget")
+""
+                        "}")
         self.horizontalLayout = QHBoxLayout(self.windowWidget)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.panelWidget = QWidget(self.windowWidget)
-        self.panelWidget.setObjectName(u"panelWidget")
-        self.panelWidget.setMinimumSize(QSize(300, 0))
-        self.panelWidget.setMaximumSize(QSize(300, 16777215))
-        self.panelLayout = QVBoxLayout(self.panelWidget)
+        self.navigationPanel = QWidget(self.windowWidget)
+        self.navigationPanel.setObjectName(u"navigationPanel")
+        self.navigationPanel.setMinimumSize(QSize(300, 0))
+        self.navigationPanel.setMaximumSize(QSize(300, 16777215))
+        self.panelLayout = QVBoxLayout(self.navigationPanel)
         self.panelLayout.setObjectName(u"panelLayout")
         self.panelLayout.setContentsMargins(10, 10, 10, -1)
-        self.appLogo = QLabel(self.panelWidget)
+        self.appLogo = QLabel(self.navigationPanel)
         self.appLogo.setObjectName(u"appLogo")
         self.appLogo.setMinimumSize(QSize(280, 150))
         self.appLogo.setMaximumSize(QSize(280, 150))
@@ -104,7 +148,7 @@ class Ui_MainWindow(object):
 
         self.panelLayout.addWidget(self.appLogo)
 
-        self.overviewBtn = QPushButton(self.panelWidget)
+        self.overviewBtn = QPushButton(self.navigationPanel)
         self.overviewBtn.setObjectName(u"overviewBtn")
         self.overviewBtn.setMinimumSize(QSize(0, 50))
         font = QFont()
@@ -116,23 +160,24 @@ class Ui_MainWindow(object):
         self.overviewBtn.setIcon(icon)
         self.overviewBtn.setIconSize(QSize(32, 32))
         self.overviewBtn.setFlat(True)
+        self.overviewBtn.setProperty(u"selected", True)
 
         self.panelLayout.addWidget(self.overviewBtn)
 
-        self.managementBtn = QPushButton(self.panelWidget)
-        self.managementBtn.setObjectName(u"managementBtn")
-        self.managementBtn.setMinimumSize(QSize(0, 50))
-        self.managementBtn.setFont(font)
+        self.managerBtn = QPushButton(self.navigationPanel)
+        self.managerBtn.setObjectName(u"managerBtn")
+        self.managerBtn.setMinimumSize(QSize(0, 50))
+        self.managerBtn.setFont(font)
         icon1 = QIcon()
         icon1.addFile(u":/resources/images/white_wallet.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.managementBtn.setIcon(icon1)
-        self.managementBtn.setIconSize(QSize(32, 32))
-        self.managementBtn.setFlat(True)
-        self.managementBtn.setProperty(u"selected", False)
+        self.managerBtn.setIcon(icon1)
+        self.managerBtn.setIconSize(QSize(32, 32))
+        self.managerBtn.setFlat(True)
+        self.managerBtn.setProperty(u"selected", True)
 
-        self.panelLayout.addWidget(self.managementBtn)
+        self.panelLayout.addWidget(self.managerBtn)
 
-        self.chatBtn = QPushButton(self.panelWidget)
+        self.chatBtn = QPushButton(self.navigationPanel)
         self.chatBtn.setObjectName(u"chatBtn")
         self.chatBtn.setMinimumSize(QSize(0, 50))
         self.chatBtn.setFont(font)
@@ -140,6 +185,7 @@ class Ui_MainWindow(object):
         icon2.addFile(u":/resources/images/white_chatbot.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.chatBtn.setIcon(icon2)
         self.chatBtn.setIconSize(QSize(32, 32))
+        self.chatBtn.setCheckable(False)
         self.chatBtn.setFlat(True)
         self.chatBtn.setProperty(u"selected", True)
 
@@ -150,7 +196,7 @@ class Ui_MainWindow(object):
         self.panelLayout.addItem(self.verticalSpacer)
 
 
-        self.horizontalLayout.addWidget(self.panelWidget)
+        self.horizontalLayout.addWidget(self.navigationPanel)
 
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setSpacing(0)
@@ -162,6 +208,13 @@ class Ui_MainWindow(object):
         self.titlePanelLayout = QHBoxLayout(self.titlePanel)
         self.titlePanelLayout.setObjectName(u"titlePanelLayout")
         self.titlePanelLayout.setContentsMargins(20, 0, 10, 0)
+        self.pageIconLb = QLabel(self.titlePanel)
+        self.pageIconLb.setObjectName(u"pageIconLb")
+        self.pageIconLb.setMinimumSize(QSize(40, 0))
+        self.pageIconLb.setMaximumSize(QSize(40, 16777215))
+
+        self.titlePanelLayout.addWidget(self.pageIconLb)
+
         self.pageNameLb = QLabel(self.titlePanel)
         self.pageNameLb.setObjectName(u"pageNameLb")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -197,10 +250,13 @@ class Ui_MainWindow(object):
 
         self.mainLayout.addWidget(self.titlePanel)
 
-        self.pageContainer = QWidget(self.windowWidget)
+        self.pageContainer = QStackedWidget(self.windowWidget)
         self.pageContainer.setObjectName(u"pageContainer")
-        self.pageContainerLayout = QVBoxLayout(self.pageContainer)
+        self.pageContainerPage1 = QWidget()
+        self.pageContainerPage1.setObjectName(u"pageContainerPage1")
+        self.pageContainerLayout = QVBoxLayout(self.pageContainerPage1)
         self.pageContainerLayout.setObjectName(u"pageContainerLayout")
+        self.pageContainer.addWidget(self.pageContainerPage1)
 
         self.mainLayout.addWidget(self.pageContainer)
 
@@ -220,9 +276,9 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"ChiTi\u00eau+", None))
         self.appLogo.setText("")
         self.overviewBtn.setText(QCoreApplication.translate("MainWindow", u"   T\u1ed5ng quan", None))
-        self.overviewBtn.setProperty(u"selected", "")
-        self.managementBtn.setText(QCoreApplication.translate("MainWindow", u"   Qu\u1ea3n l\u00ed", None))
+        self.managerBtn.setText(QCoreApplication.translate("MainWindow", u"   Qu\u1ea3n l\u00ed", None))
         self.chatBtn.setText(QCoreApplication.translate("MainWindow", u"   Chat v\u1edbi tr\u1ee3 l\u00ed \u1ea3o", None))
+        self.pageIconLb.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.pageNameLb.setText(QCoreApplication.translate("MainWindow", u"T\u1ed5ng quan", None))
         self.closeBtn.setText("")
     # retranslateUi

@@ -18,56 +18,42 @@
 	background-color: white;
 	border-radius: 10px
 }
-
 QLabel {
 	color: rgb(68, 68, 68)
 }
 
-QComboBox {
-    border: 1px solid black;
-    border-radius: 4px;
-    padding: 3px 1px 3px 10px;
-	color: rgb(71, 71, 71)
+#summaryCard &gt; QWidget &gt; QLabel {
+	color: rgb(141, 141, 141)
 }
 
-QComboBox QAbstractItemView {
-	margin-top: 5px;
-    border: 1px solid black;
-    selection-background-color: lightgray;
-	color: rgb(71, 71, 71);
-	background-color: white;
+
+QLabel#totalTransactionCntLb {
+	color: rgb(24, 145, 220)
 }
 
-QComboBox QAbstractItemView::item {
-	margin: 3px
+QLabel#totalIncomeLb {
+	color: rgb(8, 167, 61)
 }
 
-QComboBox:!editable, QComboBox::drop-down:editable {
-     background: white;
+QLabel#totalExpenseLb {
+	color: rgb(255, 47, 50)
 }
 
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 15px;
-	color: black;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
+#summaryCard {
+	border-radius: 7px;
+	background: white
 }
 
-QComboBox::down-arrow { 
-	image: url(:/resources/images/black_down_arrow.png);
-	width: 13px;
-	height: 13px;
-	right: 5px
-}
-
-QComboBox::down-arrow:on {
-	image: url(:/resources/images/black_up_arrow.png);
-}</string>
+</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>15</number>
+   </property>
    <property name="topMargin">
+    <number>15</number>
+   </property>
+   <property name="rightMargin">
     <number>15</number>
    </property>
    <property name="bottomMargin">
@@ -76,95 +62,8 @@ QComboBox::down-arrow:on {
    <property name="spacing">
     <number>20</number>
    </property>
-   <item row="4" column="1" rowspan="5" colspan="2">
-    <widget class="QWidget" name="comparisionCard" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="leftMargin">
-       <number>20</number>
-      </property>
-      <property name="topMargin">
-       <number>20</number>
-      </property>
-      <property name="rightMargin">
-       <number>20</number>
-      </property>
-      <property name="bottomMargin">
-       <number>10</number>
-      </property>
-      <item>
-       <widget class="QWidget" name="horizontalWidget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>20</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="cmpLineChartLb">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>12</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>So sánh thu/chi</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comparisionCbox">
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QuickAreaChart" name="incomeAreaChart" native="true"/>
-      </item>
-      <item>
-       <widget class="QuickAreaChart" name="expenseAreaChart" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="3" rowspan="8">
-    <widget class="QWidget" name="recentTransactCard" native="true">
+   <item row="1" column="6" rowspan="10" colspan="3">
+    <widget class="QWidget" name="recentTransactionCard" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="spacing">
        <number>10</number>
@@ -182,7 +81,7 @@ QComboBox::down-arrow:on {
        <number>10</number>
       </property>
       <item>
-       <widget class="QLabel" name="recentTransactLb">
+       <widget class="QLabel" name="recentTransactionLb">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -265,11 +164,16 @@ QTabWidget::pane {
      </layout>
     </widget>
    </item>
-   <item row="1" column="1" rowspan="3" colspan="2">
-    <widget class="QWidget" name="periodicFinCard" native="true">
+   <item row="1" column="1" colspan="5">
+    <widget class="QWidget" name="horizontalWidget_4" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+    </widget>
+   </item>
+   <item row="2" column="1" rowspan="4" colspan="5">
+    <widget class="QWidget" name="monthlySummariesCard" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
-       <number>10</number>
+       <number>20</number>
       </property>
       <property name="leftMargin">
        <number>20</number>
@@ -284,95 +188,79 @@ QTabWidget::pane {
        <number>10</number>
       </property>
       <item>
-       <widget class="QWidget" name="horizontalWidget" native="true">
+       <widget class="QLabel" name="monthlySummariesLb">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <italic>false</italic>
+          <bold>true</bold>
+          <strikeout>false</strikeout>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="text">
+         <string>Tổng quan thu chi trong tháng</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::TextFormat::PlainText</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="donutChartLayout">
+        <item>
+         <widget class="CategoryDonutChart" name="incomePieChart" native="true"/>
+        </item>
+        <item>
+         <widget class="CategoryDonutChart" name="expensePieChart" native="true"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="6" column="1" rowspan="5" colspan="5">
+    <widget class="QWidget" name="comparisionCard" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>20</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="cmpLineChartLb">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>20</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="periodicFinLb">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>12</pointsize>
-             <italic>false</italic>
-             <bold>true</bold>
-             <strikeout>false</strikeout>
-             <kerning>true</kerning>
-            </font>
-           </property>
-           <property name="text">
-            <string>Thu chi định kỳ</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::TextFormat::PlainText</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="periodicCbox">
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>So sánh thu/chi 30 ngày gần nhất</string>
+        </property>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="periodicFinMainlayout">
-        <item>
-         <widget class="QuickDonutChart" name="incomePieChart" native="true"/>
-        </item>
-        <item>
-         <widget class="QuickDonutChart" name="expensePieChart" native="true"/>
-        </item>
-       </layout>
+       <widget class="FinanceComparisionChart" name="cmpChart" native="true"/>
       </item>
      </layout>
     </widget>
@@ -381,26 +269,26 @@ QTabWidget::pane {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QuickDonutChart</class>
+   <class>CategoryDonutChart</class>
    <extends>QWidget</extends>
-   <header>app.ui.widgets.quick_donut_chart</header>
+   <header>ui.widgets.category_donut_chart</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QuickAreaChart</class>
+   <class>FinanceComparisionChart</class>
    <extends>QWidget</extends>
-   <header>app.ui.widgets.quick_area_chart</header>
+   <header>ui.widgets.finance_comparision_chart</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TransactionViewer</class>
    <extends>QWidget</extends>
-   <header>app.ui.widgets.transaction_viewer</header>
+   <header>ui.widgets.transaction_viewer</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

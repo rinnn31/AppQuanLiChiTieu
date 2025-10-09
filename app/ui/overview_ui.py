@@ -15,14 +15,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QHBoxLayout,
-    QLabel, QSizePolicy, QSpacerItem, QTabWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
+    QSizePolicy, QTabWidget, QVBoxLayout, QWidget)
 
-from app.ui.widgets.quick_area_chart import QuickAreaChart
-from app.ui.widgets.quick_donut_chart import QuickDonutChart
-from app.ui.widgets.transaction_viewer import TransactionViewer
-import app.ui.resources.resources_rc
+from ui.widgets.category_donut_chart import CategoryDonutChart
+from ui.widgets.finance_comparision_chart import FinanceComparisionChart
+from ui.widgets.transaction_viewer import TransactionViewer
+import resources.resources_rc
 
 class Ui_OverviewPage(object):
     def setupUi(self, OverviewPage):
@@ -33,139 +32,68 @@ class Ui_OverviewPage(object):
 "	background-color: white;\n"
 "	border-radius: 10px\n"
 "}\n"
-"\n"
 "QLabel {\n"
 "	color: rgb(68, 68, 68)\n"
 "}\n"
 "\n"
-"QComboBox {\n"
-"    border: 1px solid black;\n"
-"    border-radius: 4px;\n"
-"    padding: 3px 1px 3px 10px;\n"
-"	color: rgb(71, 71, 71)\n"
+"#summaryCard > QWidget > QLabel {\n"
+"	color: rgb(141, 141, 141)\n"
 "}\n"
 "\n"
-"QComboBox QAbstractItemView {\n"
-"	margin-top: 5px;\n"
-"    border: 1px solid black;\n"
-"    selection-background-color: lightgray;\n"
-"	color: rgb(71, 71, 71);\n"
-"	background-color: white;\n"
+"\n"
+"QLabel#totalTransactionCntLb {\n"
+"	color: rgb(24, 145, 220)\n"
 "}\n"
 "\n"
-"QComboBox QAbstractItemView::item {\n"
-"	margin: 3px\n"
+"QLabel#totalIncomeLb {\n"
+"	color: rgb(8, 167, 61)\n"
 "}\n"
 "\n"
-"QComboBox:!editable, QComboBox::drop-down:editable {\n"
-"     background: white;\n"
+"QLabel#totalExpenseLb {\n"
+"	color: rgb(255, 47, 50)\n"
 "}\n"
 "\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 15px;\n"
-"	color: black;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
+"#summaryCard {\n"
+"	border-radius: 7px;\n"
+"	background: white\n"
 "}\n"
 "\n"
-"QComboBox::down-arrow { \n"
-"	image: url(:/resources/images/black_down_arrow.png);\n"
-"	width: 13px;\n"
-"	height: 13px;\n"
-""
-                        "	right: 5px\n"
-"}\n"
-"\n"
-"QComboBox::down-arrow:on {\n"
-"	image: url(:/resources/images/black_up_arrow.png);\n"
-"}")
+"")
         self.gridLayout = QGridLayout(OverviewPage)
         self.gridLayout.setSpacing(20)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(-1, 15, -1, 15)
-        self.comparisionCard = QWidget(OverviewPage)
-        self.comparisionCard.setObjectName(u"comparisionCard")
-        self.verticalLayout_2 = QVBoxLayout(self.comparisionCard)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(20, 20, 20, 10)
-        self.horizontalWidget = QWidget(self.comparisionCard)
-        self.horizontalWidget.setObjectName(u"horizontalWidget")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.horizontalWidget.sizePolicy().hasHeightForWidth())
-        self.horizontalWidget.setSizePolicy(sizePolicy)
-        self.horizontalLayout_2 = QHBoxLayout(self.horizontalWidget)
-        self.horizontalLayout_2.setSpacing(20)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.cmpLineChartLb = QLabel(self.horizontalWidget)
-        self.cmpLineChartLb.setObjectName(u"cmpLineChartLb")
-        sizePolicy.setHeightForWidth(self.cmpLineChartLb.sizePolicy().hasHeightForWidth())
-        self.cmpLineChartLb.setSizePolicy(sizePolicy)
-        font = QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.cmpLineChartLb.setFont(font)
-
-        self.horizontalLayout_2.addWidget(self.cmpLineChartLb)
-
-        self.comparisionCbox = QComboBox(self.horizontalWidget)
-        self.comparisionCbox.setObjectName(u"comparisionCbox")
-        self.comparisionCbox.setMinimumSize(QSize(150, 0))
-        font1 = QFont()
-        font1.setPointSize(10)
-        font1.setBold(True)
-        self.comparisionCbox.setFont(font1)
-
-        self.horizontalLayout_2.addWidget(self.comparisionCbox)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
-
-
-        self.verticalLayout_2.addWidget(self.horizontalWidget)
-
-        self.incomeAreaChart = QuickAreaChart(self.comparisionCard)
-        self.incomeAreaChart.setObjectName(u"incomeAreaChart")
-
-        self.verticalLayout_2.addWidget(self.incomeAreaChart)
-
-        self.expenseAreaChart = QuickAreaChart(self.comparisionCard)
-        self.expenseAreaChart.setObjectName(u"expenseAreaChart")
-
-        self.verticalLayout_2.addWidget(self.expenseAreaChart)
-
-
-        self.gridLayout.addWidget(self.comparisionCard, 4, 1, 5, 2)
-
-        self.recentTransactCard = QWidget(OverviewPage)
-        self.recentTransactCard.setObjectName(u"recentTransactCard")
-        self.verticalLayout_3 = QVBoxLayout(self.recentTransactCard)
+        self.gridLayout.setContentsMargins(15, 15, 15, 15)
+        self.recentTransactionCard = QWidget(OverviewPage)
+        self.recentTransactionCard.setObjectName(u"recentTransactionCard")
+        self.verticalLayout_3 = QVBoxLayout(self.recentTransactionCard)
         self.verticalLayout_3.setSpacing(10)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(20, 20, 20, 10)
-        self.recentTransactLb = QLabel(self.recentTransactCard)
-        self.recentTransactLb.setObjectName(u"recentTransactLb")
-        sizePolicy.setHeightForWidth(self.recentTransactLb.sizePolicy().hasHeightForWidth())
-        self.recentTransactLb.setSizePolicy(sizePolicy)
-        self.recentTransactLb.setFont(font)
+        self.recentTransactionLb = QLabel(self.recentTransactionCard)
+        self.recentTransactionLb.setObjectName(u"recentTransactionLb")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.recentTransactionLb.sizePolicy().hasHeightForWidth())
+        self.recentTransactionLb.setSizePolicy(sizePolicy)
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.recentTransactionLb.setFont(font)
 
-        self.verticalLayout_3.addWidget(self.recentTransactLb)
+        self.verticalLayout_3.addWidget(self.recentTransactionLb)
 
-        self.transactionTabs = QTabWidget(self.recentTransactCard)
+        self.transactionTabs = QTabWidget(self.recentTransactionCard)
         self.transactionTabs.setObjectName(u"transactionTabs")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.transactionTabs.sizePolicy().hasHeightForWidth())
         self.transactionTabs.setSizePolicy(sizePolicy1)
-        font2 = QFont()
-        font2.setPointSize(11)
-        font2.setBold(True)
-        self.transactionTabs.setFont(font2)
+        font1 = QFont()
+        font1.setPointSize(11)
+        font1.setBold(True)
+        self.transactionTabs.setFont(font1)
         self.transactionTabs.setStyleSheet(u"QTabBar::tab {\n"
 "    border-bottom-color: #C2C7CB; /* same as the pane color */\n"
 "    min-width: 8ex;\n"
@@ -201,72 +129,77 @@ class Ui_OverviewPage(object):
         self.verticalLayout_3.addWidget(self.transactionTabs)
 
 
-        self.gridLayout.addWidget(self.recentTransactCard, 1, 3, 8, 1)
+        self.gridLayout.addWidget(self.recentTransactionCard, 1, 6, 10, 3)
 
-        self.periodicFinCard = QWidget(OverviewPage)
-        self.periodicFinCard.setObjectName(u"periodicFinCard")
-        self.verticalLayout = QVBoxLayout(self.periodicFinCard)
-        self.verticalLayout.setSpacing(10)
+        self.horizontalWidget_4 = QWidget(OverviewPage)
+        self.horizontalWidget_4.setObjectName(u"horizontalWidget_4")
+        self.horizontalLayout_4 = QHBoxLayout(self.horizontalWidget_4)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+
+        self.gridLayout.addWidget(self.horizontalWidget_4, 1, 1, 1, 5)
+
+        self.monthlySummariesCard = QWidget(OverviewPage)
+        self.monthlySummariesCard.setObjectName(u"monthlySummariesCard")
+        self.verticalLayout = QVBoxLayout(self.monthlySummariesCard)
+        self.verticalLayout.setSpacing(20)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(20, 20, 20, 10)
-        self.horizontalWidget1 = QWidget(self.periodicFinCard)
-        self.horizontalWidget1.setObjectName(u"horizontalWidget1")
-        sizePolicy.setHeightForWidth(self.horizontalWidget1.sizePolicy().hasHeightForWidth())
-        self.horizontalWidget1.setSizePolicy(sizePolicy)
-        self.horizontalLayout = QHBoxLayout(self.horizontalWidget1)
-        self.horizontalLayout.setSpacing(20)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(-1, 0, -1, 0)
-        self.periodicFinLb = QLabel(self.horizontalWidget1)
-        self.periodicFinLb.setObjectName(u"periodicFinLb")
+        self.monthlySummariesLb = QLabel(self.monthlySummariesCard)
+        self.monthlySummariesLb.setObjectName(u"monthlySummariesLb")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.periodicFinLb.sizePolicy().hasHeightForWidth())
-        self.periodicFinLb.setSizePolicy(sizePolicy2)
-        font3 = QFont()
-        font3.setPointSize(12)
-        font3.setBold(True)
-        font3.setItalic(False)
-        font3.setStrikeOut(False)
-        font3.setKerning(True)
-        self.periodicFinLb.setFont(font3)
-        self.periodicFinLb.setTextFormat(Qt.TextFormat.PlainText)
+        sizePolicy2.setHeightForWidth(self.monthlySummariesLb.sizePolicy().hasHeightForWidth())
+        self.monthlySummariesLb.setSizePolicy(sizePolicy2)
+        font2 = QFont()
+        font2.setPointSize(12)
+        font2.setBold(True)
+        font2.setItalic(False)
+        font2.setStrikeOut(False)
+        font2.setKerning(True)
+        self.monthlySummariesLb.setFont(font2)
+        self.monthlySummariesLb.setTextFormat(Qt.TextFormat.PlainText)
 
-        self.horizontalLayout.addWidget(self.periodicFinLb)
+        self.verticalLayout.addWidget(self.monthlySummariesLb)
 
-        self.periodicCbox = QComboBox(self.horizontalWidget1)
-        self.periodicCbox.setObjectName(u"periodicCbox")
-        self.periodicCbox.setMinimumSize(QSize(120, 0))
-        self.periodicCbox.setMaximumSize(QSize(120, 16777215))
-        self.periodicCbox.setFont(font1)
-
-        self.horizontalLayout.addWidget(self.periodicCbox)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
-
-        self.verticalLayout.addWidget(self.horizontalWidget1)
-
-        self.periodicFinMainlayout = QHBoxLayout()
-        self.periodicFinMainlayout.setObjectName(u"periodicFinMainlayout")
-        self.incomePieChart = QuickDonutChart(self.periodicFinCard)
+        self.donutChartLayout = QHBoxLayout()
+        self.donutChartLayout.setObjectName(u"donutChartLayout")
+        self.incomePieChart = CategoryDonutChart(self.monthlySummariesCard)
         self.incomePieChart.setObjectName(u"incomePieChart")
 
-        self.periodicFinMainlayout.addWidget(self.incomePieChart)
+        self.donutChartLayout.addWidget(self.incomePieChart)
 
-        self.expensePieChart = QuickDonutChart(self.periodicFinCard)
+        self.expensePieChart = CategoryDonutChart(self.monthlySummariesCard)
         self.expensePieChart.setObjectName(u"expensePieChart")
 
-        self.periodicFinMainlayout.addWidget(self.expensePieChart)
+        self.donutChartLayout.addWidget(self.expensePieChart)
 
 
-        self.verticalLayout.addLayout(self.periodicFinMainlayout)
+        self.verticalLayout.addLayout(self.donutChartLayout)
 
 
-        self.gridLayout.addWidget(self.periodicFinCard, 1, 1, 3, 2)
+        self.gridLayout.addWidget(self.monthlySummariesCard, 2, 1, 4, 5)
+
+        self.comparisionCard = QWidget(OverviewPage)
+        self.comparisionCard.setObjectName(u"comparisionCard")
+        self.verticalLayout_2 = QVBoxLayout(self.comparisionCard)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(20, 20, 20, 10)
+        self.cmpLineChartLb = QLabel(self.comparisionCard)
+        self.cmpLineChartLb.setObjectName(u"cmpLineChartLb")
+        sizePolicy.setHeightForWidth(self.cmpLineChartLb.sizePolicy().hasHeightForWidth())
+        self.cmpLineChartLb.setSizePolicy(sizePolicy)
+        self.cmpLineChartLb.setFont(font)
+
+        self.verticalLayout_2.addWidget(self.cmpLineChartLb)
+
+        self.cmpChart = FinanceComparisionChart(self.comparisionCard)
+        self.cmpChart.setObjectName(u"cmpChart")
+
+        self.verticalLayout_2.addWidget(self.cmpChart)
+
+
+        self.gridLayout.addWidget(self.comparisionCard, 6, 1, 5, 5)
 
 
         self.retranslateUi(OverviewPage)
@@ -279,11 +212,11 @@ class Ui_OverviewPage(object):
 
     def retranslateUi(self, OverviewPage):
         OverviewPage.setWindowTitle(QCoreApplication.translate("OverviewPage", u"Form", None))
-        self.cmpLineChartLb.setText(QCoreApplication.translate("OverviewPage", u"So s\u00e1nh thu/chi", None))
-        self.recentTransactLb.setText(QCoreApplication.translate("OverviewPage", u"Giao d\u1ecbch g\u1ea7n \u0111\u00e2y", None))
+        self.recentTransactionLb.setText(QCoreApplication.translate("OverviewPage", u"Giao d\u1ecbch g\u1ea7n \u0111\u00e2y", None))
         self.transactionTabs.setTabText(self.transactionTabs.indexOf(self.allTransTab), QCoreApplication.translate("OverviewPage", u"T\u1ea5t c\u1ea3", None))
         self.transactionTabs.setTabText(self.transactionTabs.indexOf(self.incomeTransTab), QCoreApplication.translate("OverviewPage", u"Thu", None))
         self.transactionTabs.setTabText(self.transactionTabs.indexOf(self.expenseTransTab), QCoreApplication.translate("OverviewPage", u"Chi", None))
-        self.periodicFinLb.setText(QCoreApplication.translate("OverviewPage", u"Thu chi \u0111\u1ecbnh k\u1ef3", None))
+        self.monthlySummariesLb.setText(QCoreApplication.translate("OverviewPage", u"T\u1ed5ng quan thu chi trong th\u00e1ng", None))
+        self.cmpLineChartLb.setText(QCoreApplication.translate("OverviewPage", u"So s\u00e1nh thu/chi 30 ng\u00e0y g\u1ea7n nh\u1ea5t", None))
     # retranslateUi
 

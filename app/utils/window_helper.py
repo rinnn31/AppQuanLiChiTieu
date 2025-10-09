@@ -38,7 +38,7 @@ class WindowDragHelper(QObject):
         self._window = None
         self._handle_widget = None
 
-def install_dragging(window : QWidget, hanlde_widget : QWidget):
+def installWindowDragging(window : QWidget, hanlde_widget : QWidget):
     drag_helper = WindowDragHelper(window, hanlde_widget)
     window.setProperty("drag_helper", drag_helper)
 
@@ -47,7 +47,7 @@ def uninstall_dragging(window : QWidget):
         window.property("drag_helper").cleanup()
         window.setProperty("drag_helper", None)
 
-def install_drop_shadow(widget : QWidget, radius = 15, color = Qt.GlobalColor.black, offset = (0, 0)):
+def applyDropShadow(widget : QWidget, radius = 15, color = Qt.GlobalColor.gray, offset = (0, 0)):
     from PySide6.QtWidgets import QGraphicsDropShadowEffect
     shadow = QGraphicsDropShadowEffect()
     shadow.setBlurRadius(radius)
@@ -55,3 +55,16 @@ def install_drop_shadow(widget : QWidget, radius = 15, color = Qt.GlobalColor.bl
     shadow.setColor(color)
     widget.setGraphicsEffect(shadow)
     widget._drop_shadow_effect = shadow
+
+def removeDropShadow(widget : QWidget):
+    if hasattr(widget, "_drop_shadow_effect"):
+        widget.setGraphicsEffect(None)
+        widget._drop_shadow_effect = None
+
+def repolish(widget : QWidget):
+    widget.style().unpolish(widget)
+    widget.style().polish(widget)
+    for child in widget.findChildren(QWidget):
+        child.style().unpolish(child)
+        child.style().polish(child)
+    

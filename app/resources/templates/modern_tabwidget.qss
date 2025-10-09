@@ -1,0 +1,20 @@
+QTabBar::tab {
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    min-width: 8ex;
+    padding: 3px 10px 3px 10px;
+	color: rgb(83, 83, 83);
+	margin-bottom: 15px
+}
+
+QTabBar::tab:selected{
+	border-bottom: 5px solid rgb(0, 85, 255)
+}
+
+QTabBar::tab:hover:!selected {
+	border-bottom: 5px solid rgb(255, 170, 0)
+}
+
+QTabWidget::pane {
+	margin: 0px;
+	border: 0px
+}
