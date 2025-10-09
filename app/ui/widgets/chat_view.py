@@ -18,12 +18,11 @@ class ChatView(QScrollArea):
     def pushMessage(self, message : str, isUserMessage : bool):
         messageWidget = QWidget()
         messageWidget.setObjectName("messageWidget")
-        messageWidget.setStyleSheet("background: red;")
-        messageWidget.setMax
         messageWidget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         messageLayout = QHBoxLayout(messageWidget)
 
         messageLb = QLabel(message)
+        messageLb.setMaximumWidth(self.widget().width() * 0.5)
         messageLb.setFont(QFont("Segoe UI", 11))
         messageLb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         messageLb.setWordWrap(True)
