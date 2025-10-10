@@ -1,18 +1,18 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QPixmap, QFont
+from PySide6.QtGui import QPixmap, QFont, QIcon
 from PySide6.QtCore import Qt
 from ui.widgets.chat_view import ChatView
 from ui.assistant_ui import Ui_AssistantPage
-from core.gpt_assistant import GptAssistant
+from core.bot_assistant import ChattingService, BotAssistant
 
 class AssistantPage(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, transactionManager=None,parent=None):
         super().__init__(parent)
         self.ui = Ui_AssistantPage()
         self.ui.setupUi(self)
         
-        self.ui.emptyChatWidget = QWidget()
-        emptyLayout = QVBoxLayout(self.ui.emptyChatWidget)
+        self.emptyChatWidget = QWidget()
+        emptyLayout = QVBoxLayout(self.emptyChatWidget)
         emptyLayout.setContentsMargins(0,80,0,0)
         emptyLayout.setSpacing(30)
 
@@ -28,33 +28,44 @@ class AssistantPage(QWidget):
         emptyLayout.addWidget(emptyLabel)
         emptyLayout.addStretch()
 
-        self.ui.chatView = ChatView()
+        self.chatView = ChatView()
 
-        self.ui.chatContainer.addWidget(self.ui.emptyChatWidget)
-        self.ui.chatContainer.addWidget(self.ui.chatView)
+        self.ui.chatContainer.addWidget(self.emptyChatWidget)
+        self.ui.chatContainer.addWidget(self.chatView)
 
-        self.ui.chatView.pushMessage("Chào bạn! Mình là trợ lý ảo của ChiTiêu+. Mình có thể giúp gì cho bạn?", isUserMessage=False)
-        self.ui.chatView.pushMessage("Hãy nhập câu hỏi của bạn vào ô bên dưới và nhấn gửi nhé!", isUserMessage=False)
-        self.ui.chatView.pushMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+", isUserMessage=False)
-        self.ui.chatContainer.setCurrentWidget(self.ui.chatView)
+        self.chatView.pushBotMessage("Chào bạn! Mình là trợ lý ảo của ChiTiêu+. Mình có thể giúp gì cho bạn?")
+        self.chatView.pushBotMessage("Hãy nhập câu hỏi của bạn vào ô bên dưới và nhấn gửi nhé!")
+        self.chatView.pushBotMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+")
+        self.ui.chatContainer.setCurrentWidget(self.chatView)
 
-        self._gptAssistant = GptAssistant()
-        # self._gptAssistant.addTransactionManager(self._transactionManager)
+        botAssistant = BotAssistant()
+        botAssistant.setTransactionManager(transactionManager)
+        self._chatService = ChattingService(botAssistant=botAssistant)
+        self._chatService.messageReceived.connect(self.onResponseReceived)
+        self._chatService.stateChanged.connect(self.onChattingStateChanged)
 
-        self.ui.inputTbox.returnPressed.connect(self.onInputReturnPressed)
+        self.ui.sendBtn.clicked.connect(self.onSendBtnClicked)
 
-    def onInputReturnPressed(self):
+    def onSendBtnClicked(self):
         message = self.ui.inputTbox.text().strip()
-        if message == "":
+        if not message:
+            if self.ui.sendBtn.property("state") == "busy":
+                self._chatService.stopCurrentChatting()
             return
+        
         self.ui.inputTbox.clear()
-        self.ui.chatView.pushMessage(message, isUserMessage=True)
-        response = "Nfefef" # self._gptAssistant.sendMessage(message)
-        self.ui.chatView.pushMessage(response, isUserMessage=False)
-        self.ui.chatView.verticalScrollBar().setValue(self.ui.chatView.verticalScrollBar().maximum())
-        
-        
+        self._chatService.sendMessage(message)
+            
+    def onChattingStateChanged(self, state: str):
+        self.ui.sendBtn.setProperty("state", state)
+        if state == "busy":
+            self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_square.png"))
+            self.chatView.startBotChatting()
+        elif state == "idle":
+            self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_up.png"))
+            self.chatView.stopBotChatting()
 
-
+    def onResponseReceived(self, response: str):
+        self.chatView.pushBotMessage(response)
 
 

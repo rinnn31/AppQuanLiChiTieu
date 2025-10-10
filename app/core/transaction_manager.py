@@ -3,12 +3,15 @@ from typing import Optional
 from datetime import date
 from core.transaction import MonthlySummary, Transaction
 
+
 class TransactionManager:
     TRANSACTION_DB_PATH = "transactions.db"
 
     def __init__(self):
-        self.conn = sqlite3.connect(self.TRANSACTION_DB_PATH)
+        # Kết nối đến cơ sở dữ liệu tại đường dẫn TRANSACTION_DB_PATH, nếu không tồn tại sẽ tự tạo mới
+        self.conn = sqlite3.connect(self.TRANSACTION_DB_PATH, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
+
         self._createAllNecessaryTables()
 
     def _createAllNecessaryTables(self):
@@ -38,7 +41,7 @@ class TransactionManager:
                         total_income = total_income + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                         total_expense = total_expense + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
                         transaction_count = transaction_count + 1;
-                          
+                                
                 END;
                           
                 CREATE TRIGGER IF NOT EXISTS after_delete_transaction AFTER DELETE ON transactions
@@ -55,6 +58,7 @@ class TransactionManager:
                           
                 CREATE TRIGGER IF NOT EXISTS after_update_transaction AFTER UPDATE ON transactions
                 BEGIN
+                    -- Cập nhật bản tóm tắt của tháng cũ, nếu ngày đã thay đổi 
                     UPDATE monthly_transaction_summaries
                     SET total_income = total_income - CASE WHEN OLD.type = 0 THEN OLD.amount ELSE 0 END + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                         total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END
@@ -75,14 +79,13 @@ class TransactionManager:
                 END;
                 ''')
         self.conn.commit()
-
+    
     def addTransaction(self, transaction: Transaction):
-        self.conn.execute('''
+        self.conn.execute(f'''
                 INSERT INTO transactions (date, amount, note, category, type)
                 VALUES (?, ?, ?, ?, ?)
                 ''', (transaction.date, transaction.amount, transaction.note, transaction.category, transaction.type))
         self.conn.commit()
-
         
     def addTransactions(self, transactions: list[Transaction]):
         datas = [(t.date, t.amount, t.note, t.category, t.type) for t in transactions]
@@ -113,14 +116,19 @@ class TransactionManager:
                 SELECT * FROM transactions
                 WHERE id = ?
                 ''', (transaction_id,))
-        row = cursor.fetchone()
+        
+        row = cursor.fetchmany()
         if row:
             return Transaction(_id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type'])
         return None
     
+
     def getTransactions(self, limit: Optional[int] = None, startDate: Optional[date] = None, endDate: Optional[date] = None, keyword: Optional[str] = None) -> list[Transaction]:
+        # Lấy danh giao dịch với các điều kiện lọc tùy chọn
+        
         query = 'SELECT * FROM transactions'
         conditions = []
+        ['date > "12-23 AND date < "2023-12-30" AND note Lkfeefef']
         if startDate:
             conditions.append(f"date >= '{startDate.strftime('%Y-%m-%d')}'")
         if endDate:
@@ -130,7 +138,7 @@ class TransactionManager:
             conditions.append(f"(note LIKE '{like_pattern}' OR category LIKE '{like_pattern}')")
 
         if conditions:
-            query += ' WHERE ' + ' AND '.join(conditions)
+            query += ' WHERE ' + ' AND '.join(conditions) # Where date > "2023-12-23" AND date < "2023-12-30" AND note LIKE "%feefef%"
 
         query += ' ORDER BY date DESC'
         if limit:
@@ -139,7 +147,6 @@ class TransactionManager:
         cursor = self.conn.execute(query)
         rows = cursor.fetchall()
         return [Transaction(_id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type']) for row in rows]
-    
     
     def getMonthlySummary(self, month: str) -> Optional[MonthlySummary]:
         '''
@@ -168,6 +175,10 @@ class TransactionManager:
 
         Returns:
         Một dictionary với key là ngày theo định dạng "YYYY-MM-DD" và value là tuple (tổng thu nhập, tổng chi tiêu). Những ngày không có giao dịch sẽ không xuất hiện trong kết quả.
+        
+        {
+            "2023-12-01": (5000000, 2000000),
+        }
         '''
         query = '''
                 SELECT strftime('%Y-%m-%d', date) as day,
@@ -179,11 +190,12 @@ class TransactionManager:
                 '''
         cursor = self.conn.execute(query, (startDate.strftime('%Y-%m-%d'), endDate.strftime('%Y-%m-%d')))
         rows = cursor.fetchall()
-        return {row['day']: (row['total_income'], row['total_expense']) for row in rows}
+
+        return { row['day'] : (row['total_income'], row['total_expense']) for row in rows }
 
     def getMonthlyCategoriesAmounts(self, month: str, type: int) -> dict[str, int]:
         '''
-        Lấy tông số tiền theo từng danh mục trong một tháng cụ thể.
+        Lấy tổng số tiền theo từng danh mục trong một tháng cụ thể.
 
         Parameters:
         month: Tháng theo định dạng "YYYY-MM".
@@ -209,6 +221,7 @@ class TransactionManager:
 
         Returns:
         Một dictionary với key là ngày (1-31) và value là tuple (tổng thu nhập, tổng chi tiêu). Những ngày không có giao dịch sẽ không xuất hiện trong kết quả.
+        
         '''
         query = '''
                 SELECT strftime('%d', date) as day,

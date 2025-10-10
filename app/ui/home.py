@@ -12,6 +12,7 @@ from core.transaction_manager import TransactionManager
 class HomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
         self._transactionManager = TransactionManager()
 
         self.setup()
@@ -31,7 +32,7 @@ class HomeWindow(QMainWindow):
 
         self._overviewPage = OverviewPage(self._transactionManager)
         self._managerPage = ManagerPage(self._transactionManager)
-        self._assistantPage = AssistantPage()
+        self._assistantPage = AssistantPage(self._transactionManager)
 
         self.ui.pageContainer.addWidget(self._overviewPage)
         self.ui.pageContainer.addWidget(self._managerPage)
