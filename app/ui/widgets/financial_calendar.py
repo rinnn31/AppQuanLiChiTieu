@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, \
-                        QLabel, QSizePolicy, QPushButton, QSpacerItem, QDialog, QSlider
+                        QLabel, QSizePolicy, QPushButton, QSpacerItem, QDialog, QApplication
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QDate
 from datetime import date
@@ -90,42 +90,44 @@ class MonthYearPicker(QDialog):
         self.container.setObjectName("month_year_picker_container")
         applyDropShadow(self.container, radius=10)
         
-        layout  = QVBoxLayout(self.container)
-        layout.setContentsMargins(10,10,10,10)
-        layout.setSpacing(10)
+        self.containerLayout  = QVBoxLayout(self.container)
+        self.containerLayout.setContentsMargins(10,10,10,10)
+        self.containerLayout.setSpacing(10)
 
-        yearPickerLayout = QHBoxLayout()
-        yearPickerLayout.setContentsMargins(0,0,0,0)
-        yearPickerLayout.setSpacing(10)
+        self.yearPickerLayout = QHBoxLayout()
+        self.yearPickerLayout.setContentsMargins(0,0,0,0)
+        self.yearPickerLayout.setSpacing(10)
 
-        self._prevBtn = QPushButton("")
-        self._prevBtn.setIcon(QIcon(":/resources/images/black_left_arrow.png"))
-        self._prevBtn.setFixedSize(30,30)
-        self._prevBtn.setFlat(True)
-        self._prevBtn.setObjectName("year_picker_nav_btn")
-        self._prevBtn.clicked.connect(self.onPrevYearClicked)
+        self.prevBtn = QPushButton("")
+        self.prevBtn.setIcon(QIcon(":/resources/images/black_left_arrow.png"))
+        self.prevBtn.setFixedSize(30,30)
+        self.prevBtn.setFlat(True)
+        self.prevBtn.setObjectName("year_picker_nav_btn")
+        self.prevBtn.clicked.connect(self.onPrevYearClicked)
 
-        self._nextBtn = QPushButton("")
-        self._nextBtn.setIcon(QIcon(":/resources/images/black_right_arrow.png"))
-        self._nextBtn.setFixedSize(30,30)
-        self._nextBtn.setFlat(True)
-        self._nextBtn.setObjectName("year_picker_nav_btn")
-        self._nextBtn.clicked.connect(self.onNextYearClicked)
+        self.nextBtn = QPushButton("")
+        self.nextBtn.setIcon(QIcon(":/resources/images/black_right_arrow.png"))
+        self.nextBtn.setFixedSize(30,30)
+        self.nextBtn.setFlat(True)
+        self.nextBtn.setObjectName("year_picker_nav_btn")
+        self.nextBtn.clicked.connect(self.onNextYearClicked)
 
-        self._yearLb = QLabel("2025")
-        self._yearLb.setAlignment(Qt.AlignCenter)
-        self._yearLb.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-        self._yearLb.setStyleSheet("color: #5c5b5b;")
-        self._yearLb.setObjectName("year_picker_lb")
-        self._yearLb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.yearLb = QLabel("2025")
+        self.yearLb.setAlignment(Qt.AlignCenter)
+        self.yearLb.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        self.yearLb.setStyleSheet("color: #5c5b5b;")
+        self.yearLb.setObjectName("year_picker_lb")
+        self.yearLb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
-        yearPickerLayout.addWidget(self._prevBtn)
-        yearPickerLayout.addWidget(self._yearLb)
-        yearPickerLayout.addWidget(self._nextBtn)
+        self.yearPickerLayout.addWidget(self.prevBtn)
+        self.yearPickerLayout.addStretch()
+        self.yearPickerLayout.addWidget(self.yearLb)
+        self.yearPickerLayout.addStretch()
+        self.yearPickerLayout.addWidget(self.nextBtn)
 
-        gridLayout = QGridLayout()
-        gridLayout.setContentsMargins(0,0,0,0)
-        gridLayout.setSpacing(20)
+        self.monthsGridLayout = QGridLayout()
+        self.monthsGridLayout.setContentsMargins(0,0,0,0)
+        self.monthsGridLayout.setSpacing(20)
 
         for i in range(1, 13):
             monthBtn = QPushButton(f"Tháng {i}")
@@ -136,37 +138,37 @@ class MonthYearPicker(QDialog):
             monthBtn.setFont(QFont("Segoe UI", 11, QFont.Weight.Medium))
             monthBtn.setCursor(Qt.PointingHandCursor)
             monthBtn.clicked.connect(lambda checked, m=i: self.onMonthBtnClicked(m))
-            gridLayout.addWidget(monthBtn, (i-1)//4, (i-1)%4)
+            self.monthsGridLayout.addWidget(monthBtn, (i-1)//4, (i-1)%4)
         
-        buttonLayout = QHBoxLayout()
-        buttonLayout.setContentsMargins(0,0,0,0)
-        buttonLayout.setSpacing(10)
-        self._okBtn = QPushButton("OK")
-        self._okBtn.setObjectName("ok_btn")
-        self._okBtn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
-        self._okBtn.setContentsMargins(20,10,20,10)
-        self._okBtn.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
-        self._okBtn.setFlat(True)
-        self._okBtn.setCursor(Qt.PointingHandCursor)
-        self._okBtn.clicked.connect(lambda: self.accept())
+        self.controlBtnLayout = QHBoxLayout()
+        self.controlBtnLayout.setContentsMargins(0,0,0,0)
+        self.controlBtnLayout.setSpacing(10)
+        self.acceptBtn = QPushButton("OK")
+        self.acceptBtn.setObjectName("ok_btn")
+        self.acceptBtn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        self.acceptBtn.setContentsMargins(20,10,20,10)
+        self.acceptBtn.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
+        self.acceptBtn.setFlat(True)
+        self.acceptBtn.setCursor(Qt.PointingHandCursor)
+        self.acceptBtn.clicked.connect(lambda: self.accept())
 
-        self._cancelBtn = QPushButton("Hủy")
-        self._cancelBtn.setObjectName("cancel_btn")
-        self._cancelBtn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
-        self._cancelBtn.setContentsMargins(20,10,20,10)
-        self._cancelBtn.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
-        self._cancelBtn.setFlat(True)
-        self._cancelBtn.setCursor(Qt.PointingHandCursor)
-        self._cancelBtn.clicked.connect(lambda: self.reject())
+        self.cancelBtn = QPushButton("Hủy")
+        self.cancelBtn.setObjectName("cancel_btn")
+        self.cancelBtn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        self.cancelBtn.setContentsMargins(20,10,20,10)
+        self.cancelBtn.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
+        self.cancelBtn.setFlat(True)
+        self.cancelBtn.setCursor(Qt.PointingHandCursor)
+        self.cancelBtn.clicked.connect(lambda: self.reject())
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        buttonLayout.addItem(spacer)
-        buttonLayout.addWidget(self._cancelBtn)
-        buttonLayout.addWidget(self._okBtn)
+        self.controlBtnLayout.addItem(spacer)
+        self.controlBtnLayout.addWidget(self.cancelBtn)
+        self.controlBtnLayout.addWidget(self.acceptBtn)
 
-        layout.addLayout(yearPickerLayout)
-        layout.addLayout(gridLayout)
-        layout.addLayout(buttonLayout)
+        self.containerLayout.addLayout(self.yearPickerLayout)
+        self.containerLayout.addLayout(self.monthsGridLayout)
+        self.containerLayout.addLayout(self.controlBtnLayout)
 
     def resizeEvent(self, arg__1):
         super().resizeEvent(arg__1)
@@ -188,9 +190,9 @@ class MonthYearPicker(QDialog):
         self._selectedYear = max(2000, min(self._selectedYear, QDate.currentDate().year()))
         self._selectedMonth = max(1, min(self._selectedMonth, 12))
 
-        self._yearLb.setText(str(self._selectedYear))
-        self._prevBtn.setEnabled(self._selectedYear > 2000)
-        self._nextBtn.setEnabled(self._selectedYear < QDate.currentDate().year())
+        self.yearLb.setText(str(self._selectedYear))
+        self.prevBtn.setEnabled(self._selectedYear > 2000)
+        self.nextBtn.setEnabled(self._selectedYear < QDate.currentDate().year())
 
         months = self.container.findChildren(QPushButton, "month_btn")
         for i, monthBtn in enumerate(months, 1):
@@ -199,53 +201,53 @@ class MonthYearPicker(QDialog):
                 monthBtn.setEnabled(False)
             repolish(monthBtn)
 
-    def getSelectedDate(self):
+    def getSelectedYearMonth(self):
         return self._selectedYear, self._selectedMonth
 
-class FinanceCalendar(QWidget):
+class FinancialCalendar(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi()
 
         self._selectedDateItem = None
-        self._transactionManager = None
+        self.transactionManager = QApplication.instance().getTransactionManager()
         self._currentDate = QDate.currentDate()
         self.updateCalendar()
         
     def setTransactionManager(self, transactionManager: TransactionManager):
-        self._transactionManager = transactionManager
+        self.transactionManager = transactionManager
     
     def setupUi(self):
         self.setStyleSheet("""
-            #calendar_nav_btn {
+            #calendarNavBtn {
                 background: white;
                 border-radius: 8px;
             }
-            #calendar_nav_btn:hover {
+            #calendarNavBtn:hover {
                 background: #f0f0f0;
             }
-            #calendar_nav_btn:pressed {
+            #calendarNavBtn:pressed {
                 background: #e0e0e0;
             }
                            
-            #calendar_day_lb {
+            #calendarDayLb {
                 margin-bottom: 20px;
             }
                            
-            #calendar_date_item {
+            #calendarDateItem {
                 border: 1px solid #e0e0e0;
             }
                            
-            #calendar_date_item[selected="true"] {
+            #calendarDateItem[selected="true"] {
                 background: #d0eaff;
             }
                            
-            #calendar_date_item[selected="true"] > QLabel {
+            #calendarDateItem[selected="true"] > QLabel {
                 font-weight: bold;
                 color: #0047b3;
             }
                            
-            #calendar_date_lb {
+            #calendarDateLb {
                 margin-left: 10px;
             }
         """)
@@ -254,54 +256,54 @@ class FinanceCalendar(QWidget):
         layout.setContentsMargins(0,0,0,0)
         layout.setSpacing(20)
 
-        self._panelWidget = QWidget()
-        self._panelWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        self._panelWidget.setMinimumHeight(40)
-        self._panelWidget.setMaximumHeight(60)
-        panelLayout = QHBoxLayout(self._panelWidget)
-        panelLayout.setContentsMargins(10,10,10,10)
-        panelLayout.setSpacing(10)
+        self.monthYearPanel = QWidget()
+        self.monthYearPanel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.monthYearPanel.setMinimumHeight(40)
+        self.monthYearPanel.setMaximumHeight(60)
+        monthYearPanelLayout = QHBoxLayout(self.monthYearPanel)
+        monthYearPanelLayout.setContentsMargins(10,10,10,10)
+        monthYearPanelLayout.setSpacing(10)
 
-        self._prevBtn = QPushButton("")
-        self._prevBtn.setIcon(QIcon(":/resources/images/black_left_arrow.png"))
-        self._prevBtn.setFixedSize(40,40)
-        self._prevBtn.setObjectName("calendar_nav_btn")
-        self._prevBtn.clicked.connect(self.onPrevMonthClicked)
+        self.prevBtn = QPushButton("")
+        self.prevBtn.setIcon(QIcon(":/resources/images/black_left_arrow.png"))
+        self.prevBtn.setFixedSize(40,40)
+        self.prevBtn.setObjectName("calendarNavBtn")
+        self.prevBtn.clicked.connect(self.onPrevMonthClicked)
 
-        self._nextBtn = QPushButton("")
-        self._nextBtn.setIcon(QIcon(":/resources/images/black_right_arrow.png"))
-        self._nextBtn.setFixedSize(40,40)
-        self._nextBtn.setObjectName("calendar_nav_btn")
-        self._nextBtn.clicked.connect(self.onNextMonthClicked)
+        self.nextBtn = QPushButton("")
+        self.nextBtn.setIcon(QIcon(":/resources/images/black_right_arrow.png"))
+        self.nextBtn.setFixedSize(40,40)
+        self.nextBtn.setObjectName("calendarNavBtn")
+        self.nextBtn.clicked.connect(self.onNextMonthClicked)
 
-        self._monthYearLb = QLabel("Tháng 1, 2025")
-        self._monthYearLb.setAlignment(Qt.AlignCenter)
-        self._monthYearLb.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-        self._monthYearLb.setStyleSheet("color: #5c5b5b;")
-        self._monthYearLb.setObjectName("calendar_month_year_lb")
-        self._monthYearLb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._monthYearLb.setCursor(Qt.PointingHandCursor)
-        self._monthYearLb.mousePressEvent = lambda event: self.onMonthYearClicked()
+        self.monthYearLb = QLabel("Tháng 1, 2025")
+        self.monthYearLb.setAlignment(Qt.AlignCenter)
+        self.monthYearLb.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        self.monthYearLb.setStyleSheet("color: #5c5b5b;")
+        self.monthYearLb.setObjectName("calendarMonthYearLb")
+        self.monthYearLb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.monthYearLb.setCursor(Qt.PointingHandCursor)
+        self.monthYearLb.mousePressEvent = lambda event: self.onMonthYearClicked()
 
-        panelLayout.addWidget(self._prevBtn)
-        panelLayout.addWidget(self._monthYearLb)
-        panelLayout.addWidget(self._nextBtn)
+        monthYearPanelLayout.addWidget(self.prevBtn)
+        monthYearPanelLayout.addWidget(self.monthYearLb)
+        monthYearPanelLayout.addWidget(self.nextBtn)
 
-        self._calendarGrid = QWidget()
-        gridLayout = QGridLayout(self._calendarGrid)
+        self.calendarGrid = QWidget()
+        gridLayout = QGridLayout(self.calendarGrid)
         gridLayout.setContentsMargins(10,0,10,10)
         gridLayout.setSpacing(0)
         for i, day in enumerate(["T2", "T3", "T4", "T5", "T6", "T7", "CN"]):
             dayLb = QLabel(day)
             dayLb.setAlignment(Qt.AlignCenter)
             dayLb.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
-            dayLb.setObjectName("calendar_day_lb")
+            dayLb.setObjectName("calendarDayLb")
             gridLayout.addWidget(dayLb, 0, i)
         
         for row in range(1, 6):
             for col in range(7):
                 dateWidget = QWidget()
-                dateWidget.setObjectName("calendar_date_item")
+                dateWidget.setObjectName("calendarDateItem")
                 dateWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
                 dateWidget.mousePressEvent = lambda event, w=dateWidget: self._onDateItemSelected(w)
                 dateLayout = QVBoxLayout(dateWidget)
@@ -311,14 +313,14 @@ class FinanceCalendar(QWidget):
                 dateLb = QLabel("11")
                 dateLb.setAlignment(Qt.AlignTop | Qt.AlignLeft)
                 dateLb.setFont(QFont("Segoe UI", 12, QFont.Weight.Medium))
-                dateLb.setObjectName("calendar_date_lb")
+                dateLb.setObjectName("calendarDateLb")
                 dateLb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
                 dateLayout.addWidget(dateLb)
                 gridLayout.addWidget(dateWidget, row, col)
         
-        layout.addWidget(self._panelWidget)
-        layout.addWidget(self._calendarGrid)
+        layout.addWidget(self.monthYearPanel)
+        layout.addWidget(self.calendarGrid)
 
     def onPrevMonthClicked(self):
         self._currentDate = self._currentDate.addMonths(-1)
@@ -331,27 +333,27 @@ class FinanceCalendar(QWidget):
     def onMonthYearClicked(self):
         monthYearPicker = MonthYearPicker(self, self._currentDate.year(), self._currentDate.month())
         if monthYearPicker.exec() == QDialog.DialogCode.Accepted:
-            selectedYear, selectedMonth = monthYearPicker.getSelectedDate()
+            selectedYear, selectedMonth = monthYearPicker.getSelectedYearMonth()
             self._currentDate = QDate(selectedYear, selectedMonth, 1)
             self.updateCalendar()
 
     def _fillCalendar(self):
-        self._monthYearLb.setText(self._currentDate.toString("Tháng M, yyyy"))
+        self.monthYearLb.setText(self._currentDate.toString("Tháng M, yyyy"))
 
         firstDayOfMonth = QDate(self._currentDate.year(), self._currentDate.month(), 1)
         startDayOfWeek = firstDayOfMonth.dayOfWeek()
         startDate = firstDayOfMonth.addDays(- (startDayOfWeek - 1) )
 
-        if self._transactionManager:
-            datas = self._transactionManager.getDailyTotalsInPeriod(firstDayOfMonth.toPython(), min(firstDayOfMonth.addMonths(1).addDays(-1).toPython(), QDate.currentDate().toPython()))
+        if self.transactionManager:
+            datas = self.transactionManager.getDailyTotalsInPeriod(firstDayOfMonth.toPython(), min(firstDayOfMonth.addMonths(1).addDays(-1).toPython(), QDate.currentDate().toPython()))
         else:
             datas = {}
 
-        gridLayout : QGridLayout = self._calendarGrid.layout()
+        gridLayout : QGridLayout = self.calendarGrid.layout()
         for row in range(1, 6):
             for col in range(7):
                 dateWidget = gridLayout.itemAtPosition(row, col).widget()
-                dateLb = dateWidget.findChild(QLabel, "calendar_date_lb")
+                dateLb = dateWidget.findChild(QLabel, "calendarDateLb")
                 date = startDate.addDays((row - 1) * 7 + col)
                 dateWidget.setProperty("data", date.toPython())
                 dateLb.setText(str(date.day()))
@@ -372,21 +374,21 @@ class FinanceCalendar(QWidget):
                     expenseLb.deleteLater()
 
                 if date.toString("yyyy-MM-dd") in datas:
-                    from utils.money_string import getShortMoneyStringInVND
+                    from utils.value_formatter import getShortMoneyString
                     income, expense = datas[date.toString("yyyy-MM-dd")]
                     if income > 0:
-                        incomeLb = QLabel(getShortMoneyStringInVND(income, ""), parent=dateWidget)
+                        incomeLb = QLabel(getShortMoneyString(income, ""), parent=dateWidget)
                         incomeLb.setObjectName("incomeLb")
                         incomeLb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-                        incomeLb.setFont(QFont("Segoe UI", 10))
+                        incomeLb.setFont(QFont("Segoe UI", 11))
                         incomeLb.setStyleSheet("color: #18973A;")
                         incomeLb.setAlignment(Qt.AlignmentFlag.AlignRight)
                         dateWidget.layout().addWidget(incomeLb)
                     if expense > 0:
-                        expenseLb = QLabel(getShortMoneyStringInVND(expense, ""), parent=dateWidget)
+                        expenseLb = QLabel(getShortMoneyString(expense, ""), parent=dateWidget)
                         expenseLb.setObjectName("expenseLb")
                         expenseLb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-                        expenseLb.setFont(QFont("Segoe UI", 10))
+                        expenseLb.setFont(QFont("Segoe UI", 11))
                         expenseLb.setStyleSheet("color: #D91F1F;")
                         expenseLb.setAlignment(Qt.AlignmentFlag.AlignRight)
                         dateWidget.layout().addWidget(expenseLb)
@@ -394,8 +396,8 @@ class FinanceCalendar(QWidget):
         self._onDateItemSelected(None)
 
     def updateCalendar(self):
-        self._prevBtn.setEnabled(not (self._currentDate.year() == 2000 and self._currentDate.month() == 1))
-        self._nextBtn.setEnabled(not (self._currentDate.year() == QDate.currentDate().year() and self._currentDate.month() == QDate.currentDate().month()))
+        self.prevBtn.setEnabled(not (self._currentDate.year() == 2000 and self._currentDate.month() == 1))
+        self.nextBtn.setEnabled(not (self._currentDate.year() == QDate.currentDate().year() and self._currentDate.month() == QDate.currentDate().month()))
         self._fillCalendar()
 
     def _onDateItemSelected(self, selectedItem: QWidget):

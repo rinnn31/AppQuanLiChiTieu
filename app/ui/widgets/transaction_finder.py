@@ -1,14 +1,16 @@
-from PySide6.QtWidgets import QWidget, QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QSizePolicy, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QSizePolicy, QHBoxLayout, QApplication
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QIcon
-from ui.widgets.transaction_viewer import TransactionViewer
+from PySide6.QtGui import QFont, QPixmap
+from datetime import datetime
 from core.transaction_manager import TransactionManager
-from utils.window_helper import applyDropShadow, installWindowDragging
+from ui.widgets.transaction_viewer import TransactionViewer
+from utils.window_helper import applyDropShadow, installWindowDragging, repolish
+from utils.value_formatter import isValidDateString
 
 class TransactionFinder(QDialog):
-    def __init__(self, transactionManager : TransactionManager,  parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self._transactionManager = transactionManager
+        self.transactionManager : TransactionManager = QApplication.instance().getTransactionManager()
         self.setupUi()
         
     
@@ -26,16 +28,19 @@ class TransactionFinder(QDialog):
                 color: black;
             }
                            
-            #findEdit {
+            QLineEdit {
                 border: 1px solid lightgray;
                 border-radius: 5px;
-                padding: 5px 10px;
                 background: white;
                 color: black;
             }
                            
-            #findEdit:focus {
+            QLineEdit:focus {
                 border: 1px solid #0AB6D1;
+            }
+                           
+            QLineEdit[warning="true"] {
+                border: 1px solid red;
             }
             
             #findBtn {
@@ -81,7 +86,27 @@ class TransactionFinder(QDialog):
         self.findEdit.setClearButtonEnabled(True)
         self.findEdit.setFixedHeight(50)
         self.findEdit.setFont(QFont("Roboto", 11))
-        self.findEdit.addAction(QIcon(":/resources/images/search.png"), QLineEdit.ActionPosition.LeadingPosition)
+        searchPixmap = QPixmap(":/resources/images/search.png").scaled(25,25, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        self.findEdit.addAction(searchPixmap, QLineEdit.ActionPosition.LeadingPosition)
+
+        dateLayout = QHBoxLayout()
+        dateLayout.setContentsMargins(0,0,0,0)
+        dateLayout.setSpacing(10)
+        self.startDateEdit = QLineEdit()
+        self.startDateEdit.setPlaceholderText("Từ ngày (dd/mm/yyyy)")
+        self.startDateEdit.setObjectName("startDateEdit")
+        self.startDateEdit.setFixedHeight(50)
+        self.startDateEdit.setFont(QFont("Roboto", 11))
+        calendarPixmap = QPixmap(":/resources/images/gray_calendar.png").scaled(25,25, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        self.startDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        self.endDateEdit = QLineEdit()
+        self.endDateEdit.setPlaceholderText("Đến ngày (dd/mm/yyyy)")
+        self.endDateEdit.setObjectName("endDateEdit")
+        self.endDateEdit.setFixedHeight(50)
+        self.endDateEdit.setFont(QFont("Roboto", 11))
+        self.endDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        dateLayout.addWidget(self.startDateEdit)
+        dateLayout.addWidget(self.endDateEdit)
 
         findBtn = QPushButton("Tìm kiếm")
         findBtn.setObjectName("findBtn")
@@ -109,6 +134,7 @@ class TransactionFinder(QDialog):
         layout.addWidget(titleLb)
         layout.addSpacing(30)
         layout.addWidget(self.findEdit)
+        layout.addLayout(dateLayout)
         layout.addWidget(findBtn)
         layout.addSpacing(20)
         layout.addWidget(self.transactionViewer)
@@ -123,6 +149,37 @@ class TransactionFinder(QDialog):
     def onFindClicked(self):
         keyword = self.findEdit.text().strip()
         if keyword == "":
+            self.findEdit.setProperty("warning", True)
+            self.findEdit.setFocus()
+            repolish(self.findEdit)
             return
-        results = self._transactionManager.getTransactions(keyword=keyword)
+        else:
+            self.findEdit.setProperty("warning", False)
+            repolish(self.findEdit)
+        
+        startDate = self.startDateEdit.text().strip()
+        if startDate != "" and not isValidDateString(startDate):
+            self.startDateEdit.setProperty("warning", True)
+            self.startDateEdit.setFocus()
+            self.startDateEdit.setText("")
+            repolish(self.startDateEdit)
+            return
+        else:
+            startDate = datetime.strptime(startDate, "%d/%m/%Y").date() if startDate != "" else None
+            self.startDateEdit.setProperty("warning", False)
+            repolish(self.startDateEdit)
+        
+        endDate = self.endDateEdit.text().strip()
+        if endDate != "" and not isValidDateString(endDate):
+            self.endDateEdit.setProperty("warning", True)
+            self.endDateEdit.setFocus()
+            self.endDateEdit.setText("")
+            repolish(self.endDateEdit)
+            return
+        else:
+            endDate = datetime.strptime(endDate, "%d/%m/%Y").date() if endDate != "" else None
+            self.endDateEdit.setProperty("warning", False)
+            repolish(self.endDateEdit)
+        
+        results = self.transactionManager.getTransactions(keyword=keyword, startDate=startDate, endDate=endDate)
         self.transactionViewer.loadTransactions(results)

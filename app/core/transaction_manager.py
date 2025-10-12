@@ -117,9 +117,9 @@ class TransactionManager:
                 WHERE id = ?
                 ''', (transaction_id,))
         
-        row = cursor.fetchmany()
+        row = cursor.fetchone()
         if row:
-            return Transaction(_id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type'])
+            return Transaction(id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type'])
         return None
     
 
@@ -128,7 +128,6 @@ class TransactionManager:
         
         query = 'SELECT * FROM transactions'
         conditions = []
-        ['date > "12-23 AND date < "2023-12-30" AND note Lkfeefef']
         if startDate:
             conditions.append(f"date >= '{startDate.strftime('%Y-%m-%d')}'")
         if endDate:
@@ -146,7 +145,7 @@ class TransactionManager:
         
         cursor = self.conn.execute(query)
         rows = cursor.fetchall()
-        return [Transaction(_id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type']) for row in rows]
+        return [Transaction(id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type']) for row in rows]
     
     def getMonthlySummary(self, month: str) -> Optional[MonthlySummary]:
         '''

@@ -54,6 +54,7 @@ class AssistantPage(QWidget):
             return
         
         self.ui.inputTbox.clear()
+        self.chatView.pushUserMessage(message)
         self._chatService.sendMessage(message)
             
     def onChattingStateChanged(self, state: str):

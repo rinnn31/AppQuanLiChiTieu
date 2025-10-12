@@ -8,18 +8,19 @@ class ChatView(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.chatContainer = QWidget()
-        self.chatContainer.setStyleSheet("background: white; margin: 0px;")
+        self.chatContainer.setStyleSheet("background: red; margin: 0px;")
         self.chatLayout = QVBoxLayout(self.chatContainer)
         self.chatLayout.setContentsMargins(30,50,30,30)
         self.chatLayout.setSpacing(10)
+        self.chatContainer.adjustSize()
         self.setWidget(self.chatContainer)
-        self.setWidgetResizable(True)
+        self.setWidgetResizable(False)
 
     def pushUserMessage(self, message: str):
         messageItem = self._addMessageItem(isUserMessage=True)
         messageLb = messageItem.findChild(QLabel, "userMessageContent")
         messageLb.setText(message)
-
+        #messageItem.updateGeometry()
         self.chatContainer.adjustSize()
     
     def startBotChatting(self):
@@ -37,7 +38,8 @@ class ChatView(QScrollArea):
         messageLb.setMovie(movie)
         movie.start()
 
-        self.chatContainer.resize(self.chatContainer.width(), self.chatContainer.sizeHint().height())
+        #messageItem.updateGeometry()
+        self.chatContainer.adjustSize()
 
     def stopBotChatting(self):
         typingStateItem = self.getBotTypingStateItem()
@@ -64,8 +66,9 @@ class ChatView(QScrollArea):
         messageItem = self._addMessageItem(isUserMessage=False)
         messageLb = messageItem.findChild(QLabel, "botMessageContent")
         messageLb.setText(message)
-
-        self.chatContainer.resize(self.chatContainer.width(), self.chatContainer.sizeHint().height())   
+        #messageItem.updateGeometry()
+        self.chatContainer.adjustSize()
+        #self.chatContainer.resize(self.chatContainer.width(), self.chatContainer.sizeHint().height())   
 
     def _addMessageItem(self, isUserMessage: bool) -> QWidget:
         messageWidget = QWidget()
@@ -74,6 +77,7 @@ class ChatView(QScrollArea):
         messageLb = QLabel()
         messageLb.setObjectName("userMessageContent" if isUserMessage else "botMessageContent")
         messageLb.setFont(QFont("Segoe UI", 11))
+        #messageLb.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         messageLb.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
         messageLb.setWordWrap(True)
         if isUserMessage:

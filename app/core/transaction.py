@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Transaction:
-    _id : int = -1
+    id : int = -1
     amount: int = 0
     category: str = ""
     type: int  = 0
