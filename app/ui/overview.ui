@@ -18,24 +18,23 @@
 	background-color: white;
 	border-radius: 10px
 }
+
 QLabel {
-	color: rgb(68, 68, 68)
+	color: rgb(68, 68, 68);
 }
 
 #summaryCard &gt; QWidget &gt; QLabel {
 	color: rgb(141, 141, 141)
 }
 
-
-QLabel#totalTransactionCntLb {
+#totalTransactionCntLb {
 	color: rgb(24, 145, 220)
 }
 
-QLabel#totalIncomeLb {
+#totalIncomeLb {
 	color: rgb(8, 167, 61)
 }
-
-QLabel#totalExpenseLb {
+#totalExpenseLb {
 	color: rgb(255, 47, 50)
 }
 
@@ -115,7 +114,7 @@ QLabel#totalExpenseLb {
         </property>
         <property name="styleSheet">
          <string notr="true">QTabBar::tab {
-    border-bottom-color: #C2C7CB; /* same as the pane color */
+    border-bottom-color: #C2C7CB; 
     min-width: 8ex;
     padding: 3px 10px 3px 10px;
 	color: rgb(83, 83, 83);
@@ -123,7 +122,7 @@ QLabel#totalExpenseLb {
 }
 
 QTabBar::tab:selected{
-	border-bottom: 5px solid rgb(0, 85, 255)
+	border-bottom: 5px solid rgb(0, 85, 255);
 }
 
 QTabBar::tab:hover:!selected {
@@ -132,7 +131,7 @@ QTabBar::tab:hover:!selected {
 
 QTabWidget::pane {
 	margin: 0px;
-	border: 0px
+	border: 5px;
 }</string>
         </property>
         <property name="tabShape">
@@ -260,7 +259,7 @@ QTabWidget::pane {
        </widget>
       </item>
       <item>
-       <widget class="FinanceComparisionChart" name="cmpChart" native="true"/>
+       <widget class="FinancialComparisionChart" name="cmpChart" native="true"/>
       </item>
      </layout>
     </widget>
@@ -275,9 +274,9 @@ QTabWidget::pane {
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>FinanceComparisionChart</class>
+   <class>FinancialComparisionChart</class>
    <extends>QWidget</extends>
-   <header>ui.widgets.finance_comparision_chart</header>
+   <header>ui.widgets.financial_comparision_chart</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -2,8 +2,10 @@ from PySide6.QtWidgets import QWidget, QDialog, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap
 from datetime import datetime
+
 from core.transaction_manager import TransactionManager
 from ui.widgets.transaction_viewer import TransactionViewer
+from ui.widgets.date_picker import DatePicker
 from utils.window_helper import applyDropShadow, installWindowDragging, repolish
 from utils.value_formatter import isValidDateString
 
@@ -98,13 +100,17 @@ class TransactionFinder(QDialog):
         self.startDateEdit.setFixedHeight(50)
         self.startDateEdit.setFont(QFont("Roboto", 11))
         calendarPixmap = QPixmap(":/resources/images/gray_calendar.png").scaled(25,25, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        self.startDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        action = self.startDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        action.triggered.connect(self.onStartDateAction)
+
         self.endDateEdit = QLineEdit()
         self.endDateEdit.setPlaceholderText("Đến ngày (dd/mm/yyyy)")
         self.endDateEdit.setObjectName("endDateEdit")
         self.endDateEdit.setFixedHeight(50)
         self.endDateEdit.setFont(QFont("Roboto", 11))
-        self.endDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        action = self.endDateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.LeadingPosition)
+        action.triggered.connect(self.onEndDateAction)
+
         dateLayout.addWidget(self.startDateEdit)
         dateLayout.addWidget(self.endDateEdit)
 
@@ -118,7 +124,8 @@ class TransactionFinder(QDialog):
         self.transactionViewer = TransactionViewer()
         self.transactionViewer.setObjectName("transactionViewer")
         self.transactionViewer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
+        self.transactionViewer.setCustomEmptyText("Không tìm thấy giao dịch nào")
+        
         controlLayout = QHBoxLayout()
         controlLayout.setContentsMargins(0,0,0,0)
         closeBtn = QPushButton("Đóng")
@@ -183,3 +190,25 @@ class TransactionFinder(QDialog):
         
         results = self.transactionManager.getTransactions(keyword=keyword, startDate=startDate, endDate=endDate)
         self.transactionViewer.loadTransactions(results)
+
+    def onStartDateAction(self):
+        endDate = self.endDateEdit.text().strip()
+        if endDate == "" or not isValidDateString(endDate):
+            endDate = None
+        else:
+            endDate = datetime.strptime(endDate, "%d/%m/%Y").date()
+        dialog = DatePicker(self, lowerDate=None, upperDate=endDate)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.startDateEdit.setText(dialog.getSelectedDate().strftime("%d/%m/%Y"))
+
+    def onEndDateAction(self):
+        startDate = self.startDateEdit.text().strip()
+        if startDate == "" or not isValidDateString(startDate):
+            startDate = None
+        else:
+            startDate = datetime.strptime(startDate, "%d/%m/%Y").date()
+        dialog = DatePicker(self, lowerDate=startDate, upperDate=None)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.endDateEdit.setText(dialog.getSelectedDate().strftime("%d/%m/%Y"))
+
+    

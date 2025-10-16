@@ -33,9 +33,9 @@ class AssistantPage(QWidget):
         self.ui.chatContainer.addWidget(self.emptyChatWidget)
         self.ui.chatContainer.addWidget(self.chatView)
 
-        self.chatView.pushBotMessage("Chào bạn! Mình là trợ lý ảo của ChiTiêu+. Mình có thể giúp gì cho bạn?")
-        self.chatView.pushBotMessage("Hãy nhập câu hỏi của bạn vào ô bên dưới và nhấn gửi nhé!")
-        self.chatView.pushBotMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+")
+        self.chatView.pushMessage("Chào bạn! Mình là trợ lý ảo của ChiTiêu+. Mình có thể giúp gì cho bạn?", isOutgoingMessage=False)
+        self.chatView.pushMessage("Hãy nhập câu hỏi của bạn vào ô bên dưới và nhấn gửi nhé!", isOutgoingMessage=False)
+        self.chatView.pushMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+", isOutgoingMessage=False)
         self.ui.chatContainer.setCurrentWidget(self.chatView)
 
         botAssistant = BotAssistant()
@@ -54,19 +54,19 @@ class AssistantPage(QWidget):
             return
         
         self.ui.inputTbox.clear()
-        self.chatView.pushUserMessage(message)
+        self.chatView.pushMessage(message)
         self._chatService.sendMessage(message)
             
     def onChattingStateChanged(self, state: str):
         self.ui.sendBtn.setProperty("state", state)
         if state == "busy":
             self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_square.png"))
-            self.chatView.startBotChatting()
+            self.chatView.enableIncomeChattingState()
         elif state == "idle":
             self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_up.png"))
-            self.chatView.stopBotChatting()
+            self.chatView.disableIncomeChattingState()
 
     def onResponseReceived(self, response: str):
-        self.chatView.pushBotMessage(response)
+        self.chatView.pushMessage(response, isOutgoingMessage=False)
 
 

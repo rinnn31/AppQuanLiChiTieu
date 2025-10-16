@@ -88,8 +88,8 @@ QScrollBar:horizontal {
 	background-color: rgb(29, 29, 29);
 	color: rgb(240, 240, 240);
 	text-align: left;
-	padding-left: 20px;
-	
+	padding-left: 30px;
+	margin: 0px 5px;
 }
 
 #navigationPanel &gt; QPushButton[selected=&quot;true&quot;] {
@@ -218,7 +218,7 @@ QScrollBar:horizontal {
           <bool>true</bool>
          </property>
          <property name="selected" stdset="0">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -253,7 +253,7 @@ QScrollBar:horizontal {
           <bool>true</bool>
          </property>
          <property name="selected" stdset="0">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -291,7 +291,7 @@ QScrollBar:horizontal {
           <bool>true</bool>
          </property>
          <property name="selected" stdset="0">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>

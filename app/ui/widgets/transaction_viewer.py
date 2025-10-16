@@ -10,12 +10,63 @@ class TransactionViewer(QScrollArea):
         super().__init__(parent)
         self.setupUi()
         self._cachedItemCount = 0
+        self._itemEditable = False
 
     def setupUi(self):
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.setStyleSheet("background: white; margin: 0px;")
+        self.setStyleSheet("""
+            QWidget {
+                background: white;
+                border: none;
+            }               
+            
+            QScrollBar
+            {
+                background-color: rgb(180, 180, 180);
+                border:1px transparent;
+                border-radius:3px;
+            }
+            QScrollBar::handle
+            {
+                background-color: rgb(122, 122, 122);
+                border-radius:3px;
+            }
+            QScrollBar::sub-page
+            {
+                background: none;
+                width: 0px;
+                height: 0px;
+            }
+            QScrollBar::add-page
+            {
+                background: none;
+                width: 0px;
+                height: 0px;
+            }
+
+            QScrollBar::sub-line
+            {
+                background: none;
+                width: 0px;
+                height: 0px;
+            }
+            QScrollBar::add-line
+            {
+                background: none;
+                width: 0px;
+                height: 0px;
+            }
+
+            QScrollBar:vertical {
+                witdh: 6px;
+            }
+
+            QScrollBar:horizontal {
+                height: 6px
+            }
+        """)
         self.verticalScrollBar().setMaximumWidth(6)
 
         self.emptyStateWidget = QWidget()
@@ -46,6 +97,9 @@ class TransactionViewer(QScrollArea):
         self.container.addWidget(self.contentWidget)
         self.setWidget(self.container)
 
+    def setEditable(self, editable: bool):
+        self._itemEditable = editable
+
     def loadTransactions(self, datas : list[Transaction]):
         self.clearTransactions()
         if datas is None or len(datas) == 0:
@@ -54,7 +108,6 @@ class TransactionViewer(QScrollArea):
         for data in datas:
             self.addTransaction(data)
     
-
     def addTransaction(self, data : Transaction):
         widget = self._createTransactionItem(data)
         widget.setFixedHeight(60)
@@ -129,9 +182,8 @@ class TransactionViewer(QScrollArea):
             
 
     def onTransactionItemClicked(self, transaction : Transaction):
-        dialog = TransactionEditor(self, transaction.type, False, transaction.id)
+        dialog = TransactionEditor(self, transaction.type, self._itemEditable, transaction.id)
         dialog.exec()
-        pass
 
     def setCustomEmptyText(self, text):
         self.emptyText.setText(text)

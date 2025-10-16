@@ -275,14 +275,14 @@ QTabWidget::pane {
 }</string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
-        <widget class="TransactionViewer" name="expenseTab">
+        <widget class="TransactionViewer" name="incomeTab">
          <attribute name="title">
           <string>Thu</string>
          </attribute>
         </widget>
-        <widget class="TransactionViewer" name="incomeTab">
+        <widget class="TransactionViewer" name="expenseTab">
          <attribute name="title">
           <string>Chi</string>
          </attribute>
@@ -296,7 +296,7 @@ QTabWidget::pane {
     <widget class="QWidget" name="verticalWidget1" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="FinanceCalendar" name="calendar" native="true"/>
+       <widget class="FinancialCalendar" name="calendar" native="true"/>
       </item>
      </layout>
     </widget>
@@ -305,9 +305,9 @@ QTabWidget::pane {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FinanceCalendar</class>
+   <class>FinancialCalendar</class>
    <extends>QWidget</extends>
-   <header>ui.widgets.finance_calendar</header>
+   <header>ui.widgets.financial_calendar</header>
    <container>1</container>
   </customwidget>
   <customwidget>

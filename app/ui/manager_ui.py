@@ -168,12 +168,12 @@ class Ui_ManagerPage(object):
 "	margin: 0px;\n"
 "	border: 0px\n"
 "}")
-        self.expenseTab = TransactionViewer()
-        self.expenseTab.setObjectName(u"expenseTab")
-        self.tabWidget.addTab(self.expenseTab, "")
         self.incomeTab = TransactionViewer()
         self.incomeTab.setObjectName(u"incomeTab")
         self.tabWidget.addTab(self.incomeTab, "")
+        self.expenseTab = TransactionViewer()
+        self.expenseTab.setObjectName(u"expenseTab")
+        self.tabWidget.addTab(self.expenseTab, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
@@ -195,7 +195,7 @@ class Ui_ManagerPage(object):
 
         self.retranslateUi(ManagerPage)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(ManagerPage)
@@ -208,7 +208,7 @@ class Ui_ManagerPage(object):
         self.addExpenseBtn.setText(QCoreApplication.translate("ManagerPage", u"  Th\u00eam kho\u1ea3n chi", None))
         self.findBtn.setText(QCoreApplication.translate("ManagerPage", u"  T\u00ecm ki\u1ebfm giao d\u1ecbch", None))
         self.label.setText(QCoreApplication.translate("ManagerPage", u"L\u1ecbch s\u1eed giao d\u1ecbch trong ng\u00e0y", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.expenseTab), QCoreApplication.translate("ManagerPage", u"Thu", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.incomeTab), QCoreApplication.translate("ManagerPage", u"Chi", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.incomeTab), QCoreApplication.translate("ManagerPage", u"Thu", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.expenseTab), QCoreApplication.translate("ManagerPage", u"Chi", None))
     # retranslateUi
 
