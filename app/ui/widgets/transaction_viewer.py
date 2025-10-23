@@ -8,6 +8,10 @@ from core.transaction import Transaction
 class TransactionViewer(QScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setupUi()
+        self._cachedItemCount = 0
+
+    def setupUi(self):
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -23,13 +27,13 @@ class TransactionViewer(QScrollArea):
         emptyIcon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         emptyIcon.setPixmap(QPixmap(":resources/images/empty.png").scaled(120,120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         emptyIcon.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        emptyText = QLabel("Chưa có giao dịch nào")
-        emptyText.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        emptyText.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-        emptyText.setStyleSheet("color: gray")
+        self.emptyText = QLabel("Chưa có giao dịch nào")
+        self.emptyText.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.emptyText.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        self.emptyText.setStyleSheet("color: gray")
 
         emptyLayout.addWidget(emptyIcon)
-        emptyLayout.addWidget(emptyText)
+        emptyLayout.addWidget(self.emptyText)
         emptyLayout.addStretch()
 
         self.contentWidget = QWidget()
@@ -41,8 +45,6 @@ class TransactionViewer(QScrollArea):
         self.container.addWidget(self.emptyStateWidget)
         self.container.addWidget(self.contentWidget)
         self.setWidget(self.container)
-        self._cachedItemCount = 0
-
 
     def loadTransactions(self, datas : list[Transaction]):
         self.clearTransactions()
@@ -98,7 +100,7 @@ class TransactionViewer(QScrollArea):
         categoryLb = QLabel()
         categoryLb.setTextFormat(Qt.TextFormat.RichText)
         categoryLb.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
-        categoryLb.setText(f"<b style='color: black'>{data.note}</b><br><span style='color: gray'>{data.category}</span>")
+        categoryLb.setText(f"<b style='color: black'>{data.note if data.note else data.category}</b><br><span style='color: gray'>{data.category}</span>")
 
         amountLb = QLabel()
         amountLb.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
@@ -113,7 +115,6 @@ class TransactionViewer(QScrollArea):
         layout.addSpacing(20)
         layout.addStretch()
         layout.addWidget(amountLb)
-
         
         return widget
     
@@ -127,5 +128,10 @@ class TransactionViewer(QScrollArea):
             item.setFixedWidth(self.contentWidget.width()-40)
             
 
-    def onTransactionItemClicked(self, transaction: Transaction):
+    def onTransactionItemClicked(self, transaction : Transaction):
+        dialog = TransactionEditor(self, transaction.type, False, transaction.id)
+        dialog.exec()
         pass
+
+    def setCustomEmptyText(self, text):
+        self.emptyText.setText(text)

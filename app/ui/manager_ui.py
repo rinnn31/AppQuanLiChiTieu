@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
     QPushButton, QSizePolicy, QTabWidget, QVBoxLayout,
     QWidget)
 
-from ui.widgets.finance_calendar import FinanceCalendar
+from ui.widgets.financial_calendar import FinancialCalendar
 from ui.widgets.transaction_viewer import TransactionViewer
 import resources.resources_rc
 
@@ -184,7 +184,7 @@ class Ui_ManagerPage(object):
         self.verticalWidget1.setObjectName(u"verticalWidget1")
         self.verticalLayout = QVBoxLayout(self.verticalWidget1)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.calendar = FinanceCalendar(self.verticalWidget1)
+        self.calendar = FinancialCalendar(self.verticalWidget1)
         self.calendar.setObjectName(u"calendar")
 
         self.verticalLayout.addWidget(self.calendar)

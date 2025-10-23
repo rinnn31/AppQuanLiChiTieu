@@ -1,21 +1,30 @@
 from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QLabel, QLineEdit, QGridLayout, \
-                               QSizePolicy, QSpacerItem, QHBoxLayout, QPushButton)
+                               QSizePolicy, QSpacerItem, QHBoxLayout, QPushButton, QApplication)
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QPixmap
+from PySide6.QtGui import QFont, QPixmap, QRegularExpressionValidator
 
 from core.transaction import Transaction
+from ui.widgets.date_picker import DatePicker
 from utils.window_helper import applyDropShadow, repolish, installWindowDragging
 from utils.transaction_style import EXPENSE_CATEGORIES, INCOME_CATEGORIES, getIconForCategory, getSubColorForCategory
-
+from utils.value_formatter import isValidDateString, convertDateStringFormat
 class TransactionEditor(QDialog):
-    def __init__(self, parent: QWidget = None, transaction: Transaction = None, transactionType = 0, editMode: bool = True):
+    def __init__(self, parent: QWidget = None, transactionType = 0, editMode: bool = True, transactionId : int = None):
         super().__init__(parent)
-        self._transaction = Transaction(transaction.id, transaction.amount, transaction.date, \
-                                        transaction.category, transaction.note, transaction.type) \
-                                     if transaction else Transaction()
+        self._transactionId = transactionId
         self._editMode = editMode
         self._transactionType = transactionType
+        self._transactionManager = QApplication.instance().getTransactionManager()
         self.setupUi()
+        self._initValue()
+
+    def _initValue(self):
+        if self._transactionId is not None:
+            transaction = self._transactionManager.getTransactionById(self._transactionId)
+            self.onAmountTextEdited(str(transaction.amount))
+            self.dateEdit.setText(convertDateStringFormat(transaction.date, currentFormat="%Y-%m-%d", targetFormat="%d/%m/%Y"))
+            self.noteEdit.setText(transaction.note)
+            self.setCategory(transaction.category)
 
 
     def setupUi(self):
@@ -38,6 +47,11 @@ class TransactionEditor(QDialog):
                 padding: 5px 10px;
                 color: black;
             }
+                           
+            QLineEdit[warning="true"] {
+                border: 2px solid red;
+            }
+                           
             #categoriesWidget {
                 background: #f3f5f2;
                 border-radius: 5px;
@@ -55,14 +69,27 @@ class TransactionEditor(QDialog):
             QLineEdit:focus {
                 border: 1px solid rgb(10, 182, 209);
             }   
+                           
             #categoryIconLb {
                background: lightgray;
-            }         
+            }     
+                               
             #confirmBtn {
                 background: #5496ff;
                 color: white;
                 border-radius: 5px;
                 padding: 5px 15px;
+            }
+                           
+            #deleteBtn {
+                background: #ff5252;
+                color: white;
+                border-radius: 5px;
+                padding: 5px 20px;
+            }
+                           
+            #deleteBtn:hover {
+                background: #ff1744;
             }
                            
             #confirmBtn:hover {
@@ -88,7 +115,7 @@ class TransactionEditor(QDialog):
         layout.setSpacing(5)
 
         titleLb = QLabel()
-        if self._transaction is None:
+        if self._transactionId is None:
             titleLb.setText("Thêm khoản thu mới" if self._transactionType == 0 else "Thêm khoản chi mới")
         else:
             titleLb.setText("Chỉnh sửa giao dịch" if self._editMode else "Xem giao dịch")
@@ -113,18 +140,30 @@ class TransactionEditor(QDialog):
             edit.setFont(QFont("Roboto", 11))
             edit.setAlignment(Qt.AlignmentFlag.AlignLeft)
             edit.setReadOnly(not self._editMode)
+            edit.setFocusPolicy(Qt.FocusPolicy.StrongFocus if self._editMode else Qt.FocusPolicy.NoFocus)
             edit.setFixedHeight(45)
+            def removeWarning(event, ed=edit):
+                ed.setProperty("warning", False)
+                repolish(ed)
+                QLineEdit.focusInEvent(ed, event)
+            edit.focusInEvent = removeWarning
             return edit
         
+
+
         amountLb = createSectionLabel("Số tiền:")
-        self._amountEdit = createInputField("amountEdit", "Nhập số tiền...")
-        self._amountEdit.textEdited.connect(self.onAmountTextEdited)
+        self.amountEdit = createInputField("amountEdit", "Nhập số tiền...")
+        self.amountEdit.textEdited.connect(self.onAmountTextEdited)
 
         dateLb = createSectionLabel("Ngày:")
-        self._dateEdit = createInputField("dateEdit", "Chọn ngày...")
+        self.dateEdit = createInputField("dateEdit", "Chọn ngày... (01/01/2024)")
+        self.dateEdit.setValidator(QRegularExpressionValidator(r"\d{2}/\d{2}/\d{4}")) 
+        if self._editMode:
+            calendarPixmap = QPixmap(":/resources/images/gray_calendar.png").scaled(20,20, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            selectDateAct = self.dateEdit.addAction(calendarPixmap, QLineEdit.ActionPosition.TrailingPosition)
+            selectDateAct.triggered.connect(self.onDatePickerTriggered)
 
         categoryLb = createSectionLabel("Danh mục:")
-
         categoriesWidget = QWidget()
         categoriesWidget.setObjectName("categoriesWidget")
         categoriesWidget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -135,10 +174,11 @@ class TransactionEditor(QDialog):
         for i, category in enumerate(categories):
             categoryWidget = QWidget()
             categoryWidget.setObjectName("categoryItem")
+            if self._editMode:
+                categoryWidget.mousePressEvent = lambda event, c = category: self.setCategory(c)
             categoryWidget.setProperty("selected", False)
             categoryWidget.setProperty("category", category)
             categoryWidget.setFixedSize(80, 80)
-            categoryWidget.mousePressEvent = lambda event, c = category: self._onCategoryClicked(c)
             categoryWidget.setCursor(Qt.CursorShape.PointingHandCursor)
 
             categoryLayout = QVBoxLayout(categoryWidget)
@@ -146,12 +186,10 @@ class TransactionEditor(QDialog):
 
             categoryIconLb = QLabel()
             categoryIconLb.setObjectName("categoryIconLb")
-            categoryIconLb.setFixedSize(40, 40)
+            categoryIconLb.setFixedHeight(40)
             categoryIconLb.setPixmap(QPixmap(getIconForCategory(category)).scaled(30,30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
             categoryIconLb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            categoryIconLb.setStyleSheet(f"background: {getSubColorForCategory(category)}; border-radius: 5px; padding: 5px;")
-            categoryIconLb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-
+            categoryIconLb.setStyleSheet(f"background: {getSubColorForCategory(category)}; border-radius: 5px; padding: 5px; margin: 0px 8px;")
             categoryNameLb = QLabel(category)
             categoryNameLb.setObjectName("categoryNameLb")
             categoryNameLb.setFont(QFont("Roboto", 10))
@@ -163,63 +201,73 @@ class TransactionEditor(QDialog):
             categoriesGridLayout.addWidget(categoryWidget, i // 4, i % 4)
         
         noteLb = createSectionLabel("Ghi chú:")
-        self._noteEdit = createInputField("noteEdit", "Nhập ghi chú...")
+        self.noteEdit = createInputField("noteEdit", "Nhập ghi chú...")
 
-        self._warningLb = QLabel("")
-        self._warningLb.setObjectName("warningLb")
-        self._warningLb.setFont(QFont("Roboto", 10))
-        self._warningLb.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self._warningLb.setStyleSheet("color: red")
-        self._warningLb.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.warningLb = QLabel("")
+        self.warningLb.setObjectName("warningLb")
+        self.warningLb.setFont(QFont("Roboto", 10))
+        self.warningLb.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.warningLb.setStyleSheet("color: red")
+        self.warningLb.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
         controlLayout = QHBoxLayout()
         controlSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         controlLayout.addItem(controlSpacer)
         if self._editMode:
-            self._confirmBtn = QPushButton("Xác nhận")
-            self._confirmBtn.setObjectName("confirmBtn")
-            self._confirmBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
-            self._confirmBtn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self._confirmBtn.setFixedHeight(40)
-            self._confirmBtn.setFlat(True)
-            self._confirmBtn.clicked.connect(self.onConfirmClicked) 
+            self.confirmBtn = QPushButton("Xác nhận")
+            self.confirmBtn.setObjectName("confirmBtn")
+            self.confirmBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
+            self.confirmBtn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.confirmBtn.setFixedHeight(40)
+            self.confirmBtn.setFlat(True)
+            self.confirmBtn.clicked.connect(self.onConfirmClicked) 
 
-            self._cancelBtn = QPushButton("Hủy")
-            self._cancelBtn.setObjectName("cancelBtn")
-            self._cancelBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
-            self._cancelBtn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self._cancelBtn.setFixedHeight(40)
-            self._cancelBtn.setFlat(True)
-            self._cancelBtn.clicked.connect(lambda: self.reject())
+            if self._transactionId:
+                self.deleteBtn = QPushButton("Xóa")
+                self.deleteBtn.setObjectName("deleteBtn")
+                self.deleteBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
+                self.deleteBtn.setCursor(Qt.CursorShape.PointingHandCursor)
+                self.deleteBtn.setFixedHeight(40)
+                self.deleteBtn.setFlat(True)
+                self.deleteBtn.clicked.connect(lambda: self.reject()) # Placeholder for delete action
 
-            controlLayout.addWidget(self._cancelBtn)
-            controlLayout.addWidget(self._confirmBtn)
+            self.cancelBtn = QPushButton("Hủy")
+            self.cancelBtn.setObjectName("cancelBtn")
+            self.cancelBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
+            self.cancelBtn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.cancelBtn.setFixedHeight(40)
+            self.cancelBtn.setFlat(True)
+            self.cancelBtn.clicked.connect(lambda: self.reject())
+
+            controlLayout.addWidget(self.cancelBtn)
+            if self._transactionId:
+                controlLayout.addWidget(self.deleteBtn)
+            controlLayout.addWidget(self.confirmBtn)
         else:
-            self._closeBtn = QPushButton("Đóng")
-            self._closeBtn.setObjectName("closeBtn")
-            self._closeBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
-            self._closeBtn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self._closeBtn.setFixedHeight(40)
-            self._closeBtn.setFlat(True)
-            self._closeBtn.clicked.connect(lambda: self.close())
-            controlLayout.addWidget(self._closeBtn)
-
+            self.closeBtn = QPushButton("Đóng")
+            self.closeBtn.setObjectName("closeBtn")
+            self.closeBtn.setFont(QFont("Roboto", 11, QFont.Weight.Bold))
+            self.closeBtn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.closeBtn.setFixedHeight(40)
+            self.closeBtn.setFlat(True)
+            self.closeBtn.clicked.connect(lambda: self.close())
+            controlLayout.addWidget(self.closeBtn)
 
         layout.addWidget(titleLb)
         layout.addSpacing(25)
         layout.addWidget(amountLb)
-        layout.addWidget(self._amountEdit)
+        layout.addWidget(self.amountEdit)
         layout.addSpacing(15)
         layout.addWidget(dateLb)
-        layout.addWidget(self._dateEdit)
+        layout.addWidget(self.dateEdit)
         layout.addSpacing(15)
         layout.addWidget(categoryLb)
         layout.addWidget(categoriesWidget)
         layout.addSpacing(15)
         layout.addWidget(noteLb)
-        layout.addWidget(self._noteEdit)
+        layout.addWidget(self.noteEdit)
         layout.addSpacing(15)
-        layout.addWidget(self._warningLb)
+        layout.addWidget(self.warningLb)
         layout.addSpacing(10)
         layout.addLayout(controlLayout)
         spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
@@ -231,49 +279,79 @@ class TransactionEditor(QDialog):
         super().resizeEvent(arg__1)
         self.container.setGeometry(10, 10, self.width() - 20, self.height() - 20)
 
-    def _onCategoryClicked(self, category):
-        if not self._editMode:
-            return;
-        categoryItems = self.container.findChildren(QWidget, "categoryItem")
-        for item in categoryItems:
-            item.setProperty("selected", item.property("category") == category)
-            repolish(item)
-
-        self._transaction.category = category
+    def _getSelectedCategory(self):
+        categories = self.findChildren(QWidget, "categoryItem", Qt.FindChildOption.FindChildrenRecursively)
+        for category in categories:
+            if category.property("selected"):
+                return category.property("category")
+        return None
+    
+    def setCategory(self, category):
+        categories = self.findChildren(QWidget, "categoryItem", Qt.FindChildOption.FindChildrenRecursively)
+        for categoryItem in categories:
+            if categoryItem.property("category") == category:
+                categoryItem.setProperty("selected", True)
+            else:
+                categoryItem.setProperty("selected", False)
+            repolish(categoryItem)
 
     def onAmountTextEdited(self, text):
         if text == "":
             return
         numberStr = ''.join(filter(str.isdigit, text))
         if numberStr == "":
-            self._amountEdit.setText("")
+            self.amountEdit.setText("")
             return
         
         number = int(numberStr)
-        self._amountEdit.setText(f"{number:,}")
+        self.amountEdit.setText(f"{number:,}")
 
     def onConfirmClicked(self):
-        self._warningLb.setText("")
-        if self._amountEdit.text() == "":
-            self._warningLb.setText("Vui lòng nhập số tiền!")
+        amount = self.amountEdit.text().replace(",", "")
+        date = self.dateEdit.text()
+        category = self._getSelectedCategory()
+        note = self.noteEdit.text()
+
+        self.warningLb.setText("")
+        if amount == "":
+            self.warningLb.setText("Vui lòng nhập số tiền!")
+            self.amountEdit.setProperty("warning", True)
+            repolish(self.amountEdit)
             return
-        if int(self._amountEdit.text().replace(",", "")) >= 1_000_000_000_000:
-            self._warningLb.setText("Số tiền không được vượt quá 1,000,000,000,000!")
+        if int(amount) >= 1_000_000_000_000:
+            self.warningLb.setText("Số tiền không được vượt quá 1,000,000,000,000!")
+            self.amountEdit.setProperty("warning", True)
+            repolish(self.amountEdit)
             return
-        if self._transaction.category == "":
-            self._warningLb.setText("Vui lòng chọn danh mục!")
+        if date == "":
+            self.warningLb.setText("Vui lòng chọn ngày!")
+            self.dateEdit.setProperty("warning", True)
+            repolish(self.dateEdit)
             return
-        if self._dateEdit.text() == "":
-            self._warningLb.setText("Vui lòng chọn ngày!")
+        if not isValidDateString(date):
+            self.warningLb.setText("Ngày không hợp lệ!")
+            self.dateEdit.setProperty("warning", True)
+            repolish(self.dateEdit)
+            return
+        if category == "":
+            self.warningLb.setText("Vui lòng chọn danh mục!")
             return
         
-        self._transaction.amount = int(self._amountEdit.text().replace(",", ""))
-        self._transaction.note = self._noteEdit.text()
-        self._transaction.type = self._transactionType
-        self._transaction.date = self._dateEdit.text()
-
+        formatedDate = convertDateStringFormat(date)
+        transaction = Transaction(self._transactionId, int(amount), category, self._transactionType, formatedDate, note)
+        if self._transactionId:
+            self._transactionManager.updateTransaction(transaction)
+        else:
+            self._transactionManager.addTransaction(transaction)
         self.accept()
 
+    def onDeleteClicked(self):
+        self._transactionManager.deleteTransaction(self._transactionId)
+        self.accept()
 
+    def onDatePickerTriggered(self):
+        datePicker = DatePicker(self)
+        if datePicker.exec() == QDialog.DialogCode.Accepted:
+            self.dateEdit.setText(datePicker.selectedDate.strftime("%d/%m/%Y"))
 
 

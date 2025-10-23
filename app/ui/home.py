@@ -7,13 +7,10 @@ from ui.overview import OverviewPage
 from ui.manager import ManagerPage
 from ui.assistant import AssistantPage
 from utils.window_helper import installWindowDragging, applyDropShadow
-from core.transaction_manager import TransactionManager
 
 class HomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self._transactionManager = TransactionManager()
-
         self.setup()
         self.onOverviewBtnClicked()
 
@@ -29,8 +26,8 @@ class HomeWindow(QMainWindow):
 
         self.ui.closeBtn.clicked.connect(lambda: self.close())
 
-        self._overviewPage = OverviewPage(self._transactionManager)
-        self._managerPage = ManagerPage(self._transactionManager)
+        self._overviewPage = OverviewPage()
+        self._managerPage = ManagerPage()
         self._assistantPage = AssistantPage()
 
         self.ui.pageContainer.addWidget(self._overviewPage)
