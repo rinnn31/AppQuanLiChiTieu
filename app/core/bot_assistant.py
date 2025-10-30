@@ -2,6 +2,7 @@ import google.generativeai as genai
 from PySide6.QtCore import QObject, Signal, QThread
 from core.transaction_manager import TransactionManager
 from datetime import datetime
+from utils.transaction_style import INCOME_CATEGORIES , EXPENSE_CATEGORIES
 
 class BotAssistant:
     API_KEY = "AIzaSyCCEPGfOb3Hk18sl1PEnq1-rx2ubQbKcwQ"
@@ -13,6 +14,7 @@ class BotAssistant:
     3. Mỗi khi người dùng yêu cầu phân tích từ thống kê chi tiêu của người dùng, hãy phản hồi chính xác câu truy vấn có định dạng như dưới đây, sau đó chờ dữ liệu từ ứng dụng ChiTiêu+ để trả lời câu hỏi của người dùng, vui lòng không thêm bất kỳ thông tin nào khác ngoài câu truy vấn. Các câu truy vấn có thể là:
         - GET_TOTAL_FINANCE:<start_date>:<end_date> # Ví dụ GET_TOTAL_FINANCE:2023-01-01:2023-12-31
         - GET_TRANSACTIONS:<start_date>:<end_date> # Ví dụ GET_TRANSACTIONS:2023-01-01:2023-12-31
+        - GET_CATEGORY_FINANCE:<start_date>:<end_date>:<category> # Danh sách những danh mục hợp lệ {",".join(INCOME_CATEGORIES)},{",".join(EXPENSE_CATEGORIES)}
     4. Bổ sung cho quy tắc 3, bạn có thể trả về nhiều câu truy vấn liên tiếp nếu cần thêm dữ liệu để trả lời câu hỏi của người dùng. Mỗi câu truy vấn phải được đặt trên một dòng riêng biệt. Nếu không thể phân tích câu hỏi của người dùng thành các câu truy vấn, hãy trả lời người dùng rằng bạn không thể trả lời câu hỏi của họ. Nếu câu hỏi của người dùng không yêu cầu phân tích từ dữ liệu, hãy trả lời trực tiếp câu hỏi của họ.
     5. Tháng này là tháng {datetime.now().month} năm {datetime.now().year}.
     """
@@ -64,6 +66,29 @@ class BotAssistant:
                         secondStageMessages.append(f"- Không có giao dịch nào từ {start_date} đến {end_date}.")
                 else:
                     secondStageMessages.append("- Câu truy vấn GET_ALL_TRANSACTIONS không hợp lệ.")
+            elif line.startswith("GET_CATEGORY_FINANCE:"):
+                parts = line.split(":")
+                if len(parts) == 4:
+                    start_date, end_date = datetime.strptime(parts[1], "%Y-%m-%d"),datetime.strptime(parts[2], "%Y-%m-%d")
+                    transactions = self._transactionManager.getTransactions(startDate=start_date, endDate=end_date)
+                    if transactions:
+                        secondStageMessages.append(f"- Danh sách giao dịch thuoc danh muc {parts[3]} từ {start_date} đến {end_date}:")
+                        check = False
+                        for t in transactions:
+                           if t.category == parts[3]:
+                               secondStageMessages.append(f"-{t.date}: {t.amount}")
+                               check=True
+                        if not check:
+                            secondStageMessages.append(f"- Khong co giao dịch nao thuoc danh muc {parts[3]} từ {start_date} đến {end_date}:")
+                    else:
+                        secondStageMessages.append(f"- Không có giao dịch nào từ {start_date} đến {end_date}.")
+                else:
+                    secondStageMessages.append("- Câu truy vấn GET_CATEGORY_FINANCE không hợp lệ.")
+
+
+
+                                                
+
         
         if secondStageMessages:
             self._chat.send_message("\n".join(secondStageMessages))
