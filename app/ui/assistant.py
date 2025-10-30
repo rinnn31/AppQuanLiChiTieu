@@ -29,7 +29,8 @@ class AssistantPage(QWidget):
         emptyLayout.addStretch()
 
         self.chatView = ChatView()
-
+        self.ui.inputTbox.returnPressed.connect(self.onInputEntered)
+        
         self.ui.chatContainer.addWidget(self.emptyChatWidget)
         self.ui.chatContainer.addWidget(self.chatView)
 
@@ -47,6 +48,17 @@ class AssistantPage(QWidget):
         self._chatService.stateChanged.connect(self.onChattingStateChanged)
 
         self.ui.sendBtn.clicked.connect(self.onSendBtnClicked)
+
+    def onInputEntered(self):
+        if self.ui.sendBtn.property("state") == "busy":
+            return
+        message = self.ui.inputTbox.text().strip()
+        if not message:
+            return
+        
+        self.ui.inputTbox.clear()
+        self.chatView.pushMessage(message)
+        self._chatService.sendMessage(message)
 
     def onSendBtnClicked(self):
         message = self.ui.inputTbox.text().strip()

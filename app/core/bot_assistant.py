@@ -6,21 +6,22 @@ from datetime import datetime
 class BotAssistant:
     API_KEY = "AIzaSyCCEPGfOb3Hk18sl1PEnq1-rx2ubQbKcwQ"
 
-    ASSISTANT_SYSTEM_PROMPT = """
+    ASSISTANT_SYSTEM_PROMPT = f"""
     Bạn là một trợ lý ảo giúp người dùng quản lý chi tiêu cá nhân. Bạn phải tuân thủ các quy tắc sau:
     1. Bạn chỉ trả lời các câu hỏi liên quan đến quản lý chi tiêu cá nhân, lập kế hoạch tài chính, mẹo tiết kiệm tiền, phân tích thói quen chi tiêu và cách sử dụng ứng dụng ChiTiêu+. Nếu câu hỏi không liên quan, bạn lịch sự từ chối trả lời.
     2. Bạn không bao giờ hỏi người dùng về thông tin cá nhân như tên, địa chỉ
     3. Mỗi khi người dùng yêu cầu phân tích từ thống kê chi tiêu của người dùng, hãy phản hồi chính xác câu truy vấn có định dạng như dưới đây, sau đó chờ dữ liệu từ ứng dụng ChiTiêu+ để trả lời câu hỏi của người dùng, vui lòng không thêm bất kỳ thông tin nào khác ngoài câu truy vấn. Các câu truy vấn có thể là:
         - GET_TOTAL_FINANCE:<start_date>:<end_date> # Ví dụ GET_TOTAL_FINANCE:2023-01-01:2023-12-31
-        - GET_TRANSACTIONS:<start_date>:<end_date> # Ví dụ GET_ALL_TRANSACTIONS:2023-01-01:2023-12-31
+        - GET_TRANSACTIONS:<start_date>:<end_date> # Ví dụ GET_TRANSACTIONS:2023-01-01:2023-12-31
     4. Bổ sung cho quy tắc 3, bạn có thể trả về nhiều câu truy vấn liên tiếp nếu cần thêm dữ liệu để trả lời câu hỏi của người dùng. Mỗi câu truy vấn phải được đặt trên một dòng riêng biệt. Nếu không thể phân tích câu hỏi của người dùng thành các câu truy vấn, hãy trả lời người dùng rằng bạn không thể trả lời câu hỏi của họ. Nếu câu hỏi của người dùng không yêu cầu phân tích từ dữ liệu, hãy trả lời trực tiếp câu hỏi của họ.
+    5. Tháng này là tháng {datetime.now().month} năm {datetime.now().year}.
     """
 
 
     def __init__(self, api_key: str = None):
         genai.configure(api_key=api_key if api_key else BotAssistant.API_KEY)
         self._model = genai.GenerativeModel(system_instruction=BotAssistant.ASSISTANT_SYSTEM_PROMPT,
-                                            model_name="gemini-2.5-pro")
+                                            model_name="gemini-2.0-flash")
         
         self._chat = self._model.start_chat()
 
@@ -45,7 +46,7 @@ class BotAssistant:
                     for val in res.values() :
                         total_income += val[0]
                         total_expense += val[1]
-                    secondStageMessages.append(f"- Tổng thu nhập từ {start_date} đến {end_date} là {total_income} VND. Tổng chi tiêu là {total_expense} VND.")
+                    secondStageMessages.append(f"- Tổng thu nhập từ {start_date} đến {end_date} là {total_income} VND. Tổng chi là {total_expense} VND.")
                 else:
                     secondStageMessages.append("- Câu truy vấn GET_TOTAL_FINANCE không hợp lệ.")
             
@@ -71,8 +72,7 @@ class BotAssistant:
         self._chat.send_message(message)
         self._handleFinanceQueryIfNeeded(self._chat.last.text)
         return self._chat.last.text
-    
-    
+
 class ChattingThread(QThread):
     responseReceived = Signal(str)
 
