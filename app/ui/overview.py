@@ -35,15 +35,8 @@ class OverviewPage(QWidget):
 
     def refreshMonthlySummaryData(self):
         curMonth = datetime.datetime.now().strftime("%Y-%m")
-        prevMonth = (datetime.datetime.now() - relativedelta(months=1)).strftime("%Y-%m")
-
         curSummary = self.transactionManager.getMonthlySummary(curMonth)
-        prevSummary = self.transactionManager.getMonthlySummary(prevMonth)
-        if curSummary is None:
-            curSummary = MonthlySummary(curMonth, 0, 0, 0)
-        if prevSummary is None:
-            prevSummary = MonthlySummary(prevMonth, 0, 0, 0)
-
+        
         from utils.value_formatter import getShortMoneyString
         incomeCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 0)
         expenseCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 1)

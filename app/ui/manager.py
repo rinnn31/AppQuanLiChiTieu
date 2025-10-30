@@ -13,12 +13,15 @@ class ManagerPage(QWidget):
         self.ui.addIncomeBtn.clicked.connect(self.onAddIncomeClicked)
         self.ui.addExpenseBtn.clicked.connect(self.onAddExpenseClicked)
         self.ui.findBtn.clicked.connect(self.onFindTransactionClicked)
-           
+        
         self.ui.calendar.onDateSelected = self.onCalendarDateSelected
         self.ui.calendar.updateCalendar()
-
+       
         self.ui.incomeTab.setEditable(True)
         self.ui.expenseTab.setEditable(True)
+
+        self.ui.incomeTab.onTransactionItemClicked = self.onTransactionItemClicked
+        self.ui.expenseTab.onTransactionItemClicked = self.onTransactionItemClicked
 
     def onCalendarDateSelected(self, date):
         if date is None:
@@ -32,19 +35,24 @@ class ManagerPage(QWidget):
 
     def onAddIncomeClicked(self):
         dialog = TransactionEditor(self, transactionType=0, editMode=True)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.ui.calendar.updateCalendar()
-            self.onCalendarDateSelected(None)
+        dialog.exec()
+        self.ui.calendar.updateCalendar()
+        self.onCalendarDateSelected(None)
     
     def onAddExpenseClicked(self):
         dialog = TransactionEditor(self, transactionType=1, editMode=True)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.ui.calendar.updateCalendar()
-            self.onCalendarDateSelected(None)
+        dialog.exec()
+        self.ui.calendar.updateCalendar()
+        self.onCalendarDateSelected(None)
 
     def onFindTransactionClicked(self):
         dialog = TransactionFinder(self)
         dialog.exec()
         self.ui.calendar.updateCalendar()
         self.onCalendarDateSelected(None)
-            
+        
+    def onTransactionItemClicked(self, transaction):
+        dialog = TransactionEditor(self, transaction.type, True, transaction.id)
+        dialog.exec()
+        self.ui.calendar.updateCalendar()
+        self.onCalendarDateSelected(None)

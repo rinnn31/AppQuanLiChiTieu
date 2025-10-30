@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
 from ui.widgets.category_donut_chart import CategoryDonutChart
 from ui.widgets.financial_comparision_chart import FinancialComparisionChart
 from ui.widgets.transaction_viewer import TransactionViewer
-import resources_rc
+import resources.resources_rc
 
 class Ui_OverviewPage(object):
     def setupUi(self, OverviewPage):

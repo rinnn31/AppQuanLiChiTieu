@@ -21,15 +21,15 @@ class TransactionManager:
                 CREATE TABLE IF NOT EXISTS transactions ( 
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     date TEXT NOT NULL,
-                    amount REAL NOT NULL,
+                    amount INTEGER NOT NULL,
                     note TEXT,
                     category TEXT,
                     type INTEGER NOT NULL CHECK (type IN (0, 1)));
             -- Tạo bảng tổng hợp giao dịch theo tháng 
                 CREATE TABLE IF NOT EXISTS monthly_transaction_summaries (
                     month TEXT PRIMARY KEY,
-                    total_income REAL NOT NULL,
-                    total_expense REAL NOT NULL,
+                    total_income INTEGER NOT NULL,
+                    total_expense INTEGER NOT NULL,
                     transaction_count INTEGER NOT NULL);
             -- Trigger tự động cập nhật tháng khi có giao dịch mới . Khi thêm giao dịch mới:
                 -- Nếu tháng đó chưa có => thêm dòng mới 
@@ -73,7 +73,7 @@ class TransactionManager:
                     SET total_income = total_income + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                         total_expense = total_expense + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
                         transaction_count = transaction_count + 1
-                    WHERE month = strftime('%Y-%m', NEW.date)
+                    WHERE month = strftime('%Y-%m', NEW.date);
                     -- Nếu tháng mới chưa có thống kê → thêm mới
                     INSERT INTO monthly_transaction_summaries (month, total_income, total_expense, transaction_count)
                     SELECT strftime('%Y-%m', NEW.date), 
@@ -167,7 +167,7 @@ class TransactionManager:
         row = cursor.fetchone()
         if row:
             return MonthlySummary(month=row['month'], total_income=row['total_income'], total_expense=row['total_expense'], transaction_count=row['transaction_count'])
-        return None
+        return MonthlySummary(month=month, total_income=0, total_expense=0, transaction_count=0)
     
     def getDailyTotalsInPeriod(self, startDate: date, endDate: date) -> dict[str, tuple[int, int]]:
         '''

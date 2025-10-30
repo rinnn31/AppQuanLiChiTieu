@@ -228,7 +228,7 @@ class TransactionEditor(QDialog):
                 self.deleteBtn.setCursor(Qt.CursorShape.PointingHandCursor)
                 self.deleteBtn.setFixedHeight(40)
                 self.deleteBtn.setFlat(True)
-                self.deleteBtn.clicked.connect(lambda: self.reject()) # Placeholder for delete action
+                self.deleteBtn.clicked.connect(self.onDeleteClicked)
 
             self.cancelBtn = QPushButton("Hủy")
             self.cancelBtn.setObjectName("cancelBtn")
@@ -277,6 +277,10 @@ class TransactionEditor(QDialog):
     def resizeEvent(self, arg__1):
         super().resizeEvent(arg__1)
         self._container.setGeometry(10, 10, self.width() - 20, self.height() - 20)
+
+    def onDeleteClicked(self):
+        self._transactionManager.deleteTransaction(self._transactionId)
+        self.accept()
 
     def _getSelectedCategory(self):
         categories = self.findChildren(QWidget, "categoryItem", Qt.FindChildOption.FindChildrenRecursively)
@@ -342,10 +346,6 @@ class TransactionEditor(QDialog):
             self._transactionManager.updateTransaction(transaction)
         else:
             self._transactionManager.addTransaction(transaction)
-        self.accept()
-
-    def onDeleteClicked(self):
-        self._transactionManager.deleteTransaction(self._transactionId)
         self.accept()
 
     def onDatePickerTriggered(self):
