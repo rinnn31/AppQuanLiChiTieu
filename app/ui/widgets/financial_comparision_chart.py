@@ -5,7 +5,7 @@ from PySide6.QtGui import QPainter, QBrush, QColor, QPen, QCursor
 import math
 from ui.widgets.modern_tooltip import SummaryAmountTooltip
 
-class FinanceComparisionChart(QWidget):
+class FinancialComparisionChart(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         
@@ -32,6 +32,7 @@ class FinanceComparisionChart(QWidget):
         self._chart.setBackgroundVisible(False)
         self._chart.setMargins(QMargins(0,0,0,0))
         self._chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+
 
         self._amountAxis = QValueAxis()
         self._amountAxis.setLabelFormat("%ik")

@@ -15,74 +15,81 @@ class CategoryDonutChart(QWidget):
         layout.setContentsMargins(0,0,0,0)
         layout.setSpacing(4)
 
-        self.outerPieSeries = QPieSeries()
-        self.innerPieSeries = QPieSeries()
-        self.outerPieSeries.setLabelsVisible(False)
-        self.outerPieSeries.setPieSize(0.9)
-        self.outerPieSeries.setHoleSize(0.6)
-        self.innerPieSeries.setLabelsVisible(False)
-        self.innerPieSeries.setPieSize(0.6)
-        self.innerPieSeries.setHoleSize(0.55)
+        self._outerPieSeries = QPieSeries()
+        self._innerPieSeries = QPieSeries()
+        self._outerPieSeries.setLabelsVisible(False)
+        self._outerPieSeries.setPieSize(0.9) # 0 -> 1 
+        self._outerPieSeries.setHoleSize(0.6)
+        self._innerPieSeries.setLabelsVisible(False)
+        self._innerPieSeries.setPieSize(0.6)
+        self._innerPieSeries.setHoleSize(0.55)
 
-        self.chart = QChart()
-        self.chart.addSeries(self.outerPieSeries)
-        self.chart.addSeries(self.innerPieSeries)
-        self.chart.legend().hide()
-        self.chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
-        self.chart.setBackgroundVisible(False)
-        self.chart.layout().setContentsMargins(0,0,0,0)
-        self.chart.setMargins(QMargins(0,0,0,0))
+        self._chart = QChart()
+        self._chart.addSeries(self._outerPieSeries)
+        self._chart.addSeries(self._innerPieSeries)
+        self._chart.legend().hide()
+        self._chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+        self._chart.setBackgroundVisible(False)
+        self._chart.layout().setContentsMargins(0,0,0,0)
+        self._chart.setMargins(QMargins(0,0,0,0))
 
-        self.chartView = QChartView(self.chart)
-        self.chartView.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.chartView.setStyleSheet("background: transparent;")
-        self.chartView.setParent(self)
-        layout.addWidget(self.chartView)
+        self._chartView = QChartView(self._chart)
+        self._chartView.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self._chartView.setStyleSheet("background: transparent;")
+        self._chartView.setParent(self)
+        layout.addWidget(self._chartView)
 
-        self.centerLb = QLabel()
-        self.centerLb.setAlignment(Qt.AlignCenter)
-        self.centerLb.setParent(self)
-        self.centerLb.setWordWrap(True)
+        self._centerLb = QLabel()
+        self._centerLb.setAlignment(Qt.AlignCenter)
+        self._centerLb.setParent(self)
+        self._centerLb.setWordWrap(True)
 
-        self.titleLb = QLabel()
-        self.titleLb.setAlignment(Qt.AlignCenter)
-        self.titleLb.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
-        layout.addWidget(self.titleLb)
-        self.titleLb.setText("Title")
+        self._titleLb = QLabel()
+        self._titleLb.setAlignment(Qt.AlignCenter)
+        self._titleLb.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        layout.addWidget(self._titleLb)
+        self._titleLb.setText("Title")
 
     def clearData(self):
-        self.innerPieSeries.clear()
-        self.outerPieSeries.clear()
+        self._innerPieSeries.clear()
+        self._outerPieSeries.clear()
 
-
+    
     def setData(self, datas: dict[str, int]):
-
-        self.outerPieSeries.clear()
-        self.innerPieSeries.clear()
+        '''
+        dats: {
+            "tieude1": 100000,
+            "tieude2": 200000,
+            ...}
+        '''
+        self._outerPieSeries.clear()
+        self._innerPieSeries.clear()
 
         if datas is None or len(datas) == 0:
-            outerSlice = self.outerPieSeries.append("", 1)
+            outerSlice = self._outerPieSeries.append("", 1)
             outerSlice.setBrush(QColor("#E0E0E0"))
-            innerSlice = self.innerPieSeries.append("", 1)
+            innerSlice = self._innerPieSeries.append("", 1)
             innerSlice.setBrush(QColor("#BDBDBD"))
             return
+        
         for category in datas:
-            outerSlice = self.outerPieSeries.append(category, datas[category])
-            outerSlice.hovered.connect(partial(self._onSliceHovered, outerSlice, (category, datas[category])))
+            outerSlice = self._outerPieSeries.append(category, datas[category])
+            outerSlice.hovered.connect( partial(self._onSliceHovered, outerSlice, (category, datas[category])))
             outerSlice.setBrush(QColor(getMainColorForCategory(category)))
-            innerSlice = self.innerPieSeries.append(category, datas[category])
+
+            innerSlice = self._innerPieSeries.append(category, datas[category])
             innerSlice.setBrush(QColor(getSubColorForCategory(category)))
-        self.chart.scene().update()
+        self._chart.scene().update()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)  
         self._adjustCenterText()
 
     def _adjustCenterText(self):
-        holeSize = self.chartView.size() * self.innerPieSeries.holeSize()
-        self.centerLb.setMaximumWidth(holeSize.width() * 0.9)
-        self.centerLb.adjustSize()
-        self.centerLb.move((self.chartView.width() - self.centerLb.width()) / 2, (self.chartView.height() - self.centerLb.height()) / 2)
+        holeSize = self._chartView.size() * self._innerPieSeries.holeSize()
+        self._centerLb.setMaximumWidth(holeSize.width() * 0.9)
+        self._centerLb.adjustSize()
+        self._centerLb.move((self._chartView.width() - self._centerLb.width()) / 2, (self._chartView.height() - self._centerLb.height()) / 2)
     
     def _toggleTooltip(self, slice, item, isHovered):
         if isHovered:
@@ -93,6 +100,7 @@ class CategoryDonutChart(QWidget):
             cursorPos = QCursor.pos()
             tooltip.move(cursorPos.x() + 10, cursorPos.y())
             tooltip.show()
+            
             slice.tooltip = tooltip
         else:
             if hasattr(slice, 'tooltip'):
@@ -100,31 +108,33 @@ class CategoryDonutChart(QWidget):
                 slice.tooltip = None
 
     def _onSliceHovered(self, slice, item, isHovered):
-        if isHovered:
+        if isHovered and len(self._outerPieSeries.slices()) > 1:
             start = slice.startAngle()
             end = slice.startAngle()+slice.angleSpan()
-            self.innerPieSeries.setPieStartAngle(end)
-            self.innerPieSeries.setPieEndAngle(start+360)
+            self._innerPieSeries.setPieStartAngle(end)
+            self._innerPieSeries.setPieEndAngle(start+360)
         else:
-            self.innerPieSeries.setPieStartAngle(0)
-            self.innerPieSeries.setPieEndAngle(360)  
+            self._innerPieSeries.setPieStartAngle(0)
+            self._innerPieSeries.setPieEndAngle(360)  
 
         self._toggleTooltip(slice, item, isHovered)
+        
+        #Làm cho slice tách ra khi hover
         slice.setExplodeDistanceFactor(0.1)
-        slice.setExploded(isHovered)
+        slice.setExploded(isHovered and len(self._outerPieSeries.slices()) > 1)
 
     def setCenterText(self, text: str, font: QFont = None, color: QColor = None):
-        self.centerLb.setText(text)
+        self._centerLb.setText(text)
         if font is not None:
-            self.centerLb.setFont(font)
+            self._centerLb.setFont(font)
         if color is not None:
-            self.centerLb.setStyleSheet(f"color: {color.name()};")
+            self._centerLb.setStyleSheet(f"color: {color.name()};")
         self._adjustCenterText()
         
     def setTitle(self, title: str, font: QFont = None, color: QColor = None):
-        self.titleLb.setText(title)
+        self._titleLb.setText(title)
         if font is not None:
-            self.titleLb.setFont(font)
+            self._titleLb.setFont(font)
         if color is not None:
-            self.titleLb.setStyleSheet(f"color: {color.name()};")
+            self._titleLb.setStyleSheet(f"color: {color.name()};")
         

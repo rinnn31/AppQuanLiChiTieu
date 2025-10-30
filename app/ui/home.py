@@ -15,11 +15,13 @@ class HomeWindow(QMainWindow):
         self.onOverviewBtnClicked()
 
     def setup(self):
+        # 
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
         self.setContentsMargins(QMargins(5,5,5,5))
         installWindowDragging(self, self.ui.titlePanel)
         applyDropShadow(self.ui.windowWidget, radius=5)
@@ -30,9 +32,9 @@ class HomeWindow(QMainWindow):
         self._managerPage = ManagerPage()
         self._assistantPage = AssistantPage()
 
-        self.ui.pageContainer.addWidget(self._overviewPage)
-        self.ui.pageContainer.addWidget(self._managerPage)
-        self.ui.pageContainer.addWidget(self._assistantPage)
+        self.ui.pageContainer.addWidget(self._overviewPage) # -> Index  = 1
+        self.ui.pageContainer.addWidget(self._managerPage) # -> Index  = 2
+        self.ui.pageContainer.addWidget(self._assistantPage) # -> Index  = 3
 
         self.ui.overviewBtn.clicked.connect(self.onOverviewBtnClicked)
         self.ui.managerBtn.clicked.connect(self.onManagerBtnClicked)
@@ -51,13 +53,15 @@ class HomeWindow(QMainWindow):
     def navigatePage(self, index, name, iconPath):
         if self.ui.pageContainer.currentIndex() == index + 1:
             return
+        
         navigateBtns = self.ui.navigationPanel.findChildren(QPushButton)
         for btn in navigateBtns:
             btn.setProperty("selected", False)
         navigateBtns[index].setProperty("selected", True)
+
         for btn in navigateBtns:
             btn.style().unpolish(btn)
-            btn.style().polish(btn)
+            btn.style().polish(btn) 
             
         self.ui.pageNameLb.setText(name)
         self.ui.pageIconLb.setPixmap(QPixmap(iconPath).scaled(30,30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))

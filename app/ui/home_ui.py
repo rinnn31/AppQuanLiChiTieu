@@ -96,8 +96,8 @@ class Ui_MainWindow(object):
 "	background-color: rgb(29, 29, 29);\n"
 "	color: rgb(240, 240, 240);\n"
 "	text-align: left;\n"
-"	padding-left: 20px;\n"
-"	\n"
+"	padding-left: 30px;\n"
+"	margin: 0px 5px;\n"
 "}\n"
 "\n"
 "#navigationPanel > QPushButton[selected=\"true\"] {\n"
@@ -124,9 +124,9 @@ class Ui_MainWindow(object):
 "\n"
 "#pageContainer {\n"
 "	background-color : rgb(240, 240, 240);\n"
-"	border-bottom-right-radius:10px\n"
-""
-                        "}")
+"	border-bottom-right-"
+                        "radius:10px\n"
+"}")
         self.horizontalLayout = QHBoxLayout(self.windowWidget)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -160,7 +160,7 @@ class Ui_MainWindow(object):
         self.overviewBtn.setIcon(icon)
         self.overviewBtn.setIconSize(QSize(32, 32))
         self.overviewBtn.setFlat(True)
-        self.overviewBtn.setProperty(u"selected", True)
+        self.overviewBtn.setProperty(u"selected", False)
 
         self.panelLayout.addWidget(self.overviewBtn)
 
@@ -173,7 +173,7 @@ class Ui_MainWindow(object):
         self.managerBtn.setIcon(icon1)
         self.managerBtn.setIconSize(QSize(32, 32))
         self.managerBtn.setFlat(True)
-        self.managerBtn.setProperty(u"selected", True)
+        self.managerBtn.setProperty(u"selected", False)
 
         self.panelLayout.addWidget(self.managerBtn)
 
@@ -187,7 +187,7 @@ class Ui_MainWindow(object):
         self.chatBtn.setIconSize(QSize(32, 32))
         self.chatBtn.setCheckable(False)
         self.chatBtn.setFlat(True)
-        self.chatBtn.setProperty(u"selected", True)
+        self.chatBtn.setProperty(u"selected", False)
 
         self.panelLayout.addWidget(self.chatBtn)
 

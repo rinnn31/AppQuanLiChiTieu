@@ -59,6 +59,7 @@ class TransactionEditor(QDialog):
 
             #categoryItem {
                 border-radius: 5px;
+                background: #f3f5f2;
             }
 
             #categoryItem[selected="true"] {
@@ -104,13 +105,12 @@ class TransactionEditor(QDialog):
         """)
         
 
-        self.container = QWidget(self)
-        self.container.setObjectName("container")
+        self._container = QWidget(self)
+        self._container.setObjectName("container")
+        applyDropShadow(self._container, radius=10, color=Qt.GlobalColor.black)
+        installWindowDragging(self, self._container)
 
-        applyDropShadow(self.container, radius=10, color=Qt.GlobalColor.black)
-        installWindowDragging(self, self.container)
-
-        layout = QVBoxLayout(self.container)
+        layout = QVBoxLayout(self._container)
         layout.setContentsMargins(20,20,20,20)
         layout.setSpacing(5)
 
@@ -148,8 +148,6 @@ class TransactionEditor(QDialog):
                 QLineEdit.focusInEvent(ed, event)
             edit.focusInEvent = removeWarning
             return edit
-        
-
 
         amountLb = createSectionLabel("Số tiền:")
         self.amountEdit = createInputField("amountEdit", "Nhập số tiền...")
@@ -192,6 +190,7 @@ class TransactionEditor(QDialog):
             categoryIconLb.setStyleSheet(f"background: {getSubColorForCategory(category)}; border-radius: 5px; padding: 5px; margin: 0px 8px;")
             categoryNameLb = QLabel(category)
             categoryNameLb.setObjectName("categoryNameLb")
+            categoryNameLb.setStyleSheet("background: transparent;")
             categoryNameLb.setFont(QFont("Roboto", 10))
             categoryNameLb.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -277,7 +276,7 @@ class TransactionEditor(QDialog):
 
     def resizeEvent(self, arg__1):
         super().resizeEvent(arg__1)
-        self.container.setGeometry(10, 10, self.width() - 20, self.height() - 20)
+        self._container.setGeometry(10, 10, self.width() - 20, self.height() - 20)
 
     def _getSelectedCategory(self):
         categories = self.findChildren(QWidget, "categoryItem", Qt.FindChildOption.FindChildrenRecursively)
@@ -352,6 +351,6 @@ class TransactionEditor(QDialog):
     def onDatePickerTriggered(self):
         datePicker = DatePicker(self)
         if datePicker.exec() == QDialog.DialogCode.Accepted:
-            self.dateEdit.setText(datePicker.selectedDate.strftime("%d/%m/%Y"))
+            self.dateEdit.setText(datePicker.getSelectedDate().strftime("%d/%m/%Y"))
 
 

@@ -17,6 +17,9 @@ class ManagerPage(QWidget):
         self.ui.calendar.onDateSelected = self.onCalendarDateSelected
         self.ui.calendar.updateCalendar()
 
+        self.ui.incomeTab.setEditable(True)
+        self.ui.expenseTab.setEditable(True)
+
     def onCalendarDateSelected(self, date):
         if date is None:
             self.ui.incomeTab.clearTransactions()
@@ -24,8 +27,8 @@ class ManagerPage(QWidget):
             return
         
         transactions = self.transactionManager.getTransactions(startDate=date, endDate=date)
-        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 0])
-        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 1])
+        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 1])
+        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 0])
 
     def onAddIncomeClicked(self):
         dialog = TransactionEditor(self, transactionType=0, editMode=True)

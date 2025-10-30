@@ -11,7 +11,7 @@ class TransactionManager:
         # Kết nối đến cơ sở dữ liệu tại đường dẫn TRANSACTION_DB_PATH, nếu không tồn tại sẽ tự tạo mới
         self.conn = sqlite3.connect(self.TRANSACTION_DB_PATH, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
-
+        
         self._createAllNecessaryTables()
 
     def _createAllNecessaryTables(self):

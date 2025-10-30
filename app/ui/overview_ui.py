@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
     QSizePolicy, QTabWidget, QVBoxLayout, QWidget)
 
 from ui.widgets.category_donut_chart import CategoryDonutChart
-from ui.widgets.finance_comparision_chart import FinanceComparisionChart
+from ui.widgets.financial_comparision_chart import FinancialComparisionChart
 from ui.widgets.transaction_viewer import TransactionViewer
 import resources.resources_rc
 
@@ -32,24 +32,23 @@ class Ui_OverviewPage(object):
 "	background-color: white;\n"
 "	border-radius: 10px\n"
 "}\n"
+"\n"
 "QLabel {\n"
-"	color: rgb(68, 68, 68)\n"
+"	color: rgb(68, 68, 68);\n"
 "}\n"
 "\n"
 "#summaryCard > QWidget > QLabel {\n"
 "	color: rgb(141, 141, 141)\n"
 "}\n"
 "\n"
-"\n"
-"QLabel#totalTransactionCntLb {\n"
+"#totalTransactionCntLb {\n"
 "	color: rgb(24, 145, 220)\n"
 "}\n"
 "\n"
-"QLabel#totalIncomeLb {\n"
+"#totalIncomeLb {\n"
 "	color: rgb(8, 167, 61)\n"
 "}\n"
-"\n"
-"QLabel#totalExpenseLb {\n"
+"#totalExpenseLb {\n"
 "	color: rgb(255, 47, 50)\n"
 "}\n"
 "\n"
@@ -95,7 +94,7 @@ class Ui_OverviewPage(object):
         font1.setBold(True)
         self.transactionTabs.setFont(font1)
         self.transactionTabs.setStyleSheet(u"QTabBar::tab {\n"
-"    border-bottom-color: #C2C7CB; /* same as the pane color */\n"
+"    border-bottom-color: #C2C7CB; \n"
 "    min-width: 8ex;\n"
 "    padding: 3px 10px 3px 10px;\n"
 "	color: rgb(83, 83, 83);\n"
@@ -103,7 +102,7 @@ class Ui_OverviewPage(object):
 "}\n"
 "\n"
 "QTabBar::tab:selected{\n"
-"	border-bottom: 5px solid rgb(0, 85, 255)\n"
+"	border-bottom: 5px solid rgb(0, 85, 255);\n"
 "}\n"
 "\n"
 "QTabBar::tab:hover:!selected {\n"
@@ -112,7 +111,7 @@ class Ui_OverviewPage(object):
 "\n"
 "QTabWidget::pane {\n"
 "	margin: 0px;\n"
-"	border: 0px\n"
+"	border: 5px;\n"
 "}")
         self.transactionTabs.setTabShape(QTabWidget.TabShape.Rounded)
         self.transactionTabs.setElideMode(Qt.TextElideMode.ElideNone)
@@ -193,7 +192,7 @@ class Ui_OverviewPage(object):
 
         self.verticalLayout_2.addWidget(self.cmpLineChartLb)
 
-        self.cmpChart = FinanceComparisionChart(self.comparisionCard)
+        self.cmpChart = FinancialComparisionChart(self.comparisionCard)
         self.cmpChart.setObjectName(u"cmpChart")
 
         self.verticalLayout_2.addWidget(self.cmpChart)

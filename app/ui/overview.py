@@ -14,6 +14,7 @@ class OverviewPage(QWidget):
 
         self.ui = Ui_OverviewPage()
         self.ui.setupUi(self)
+        
         applyDropShadow(self.ui.monthlySummariesCard, radius=5)
         applyDropShadow(self.ui.recentTransactionCard, radius=5)
         applyDropShadow(self.ui.comparisionCard, radius=5)
