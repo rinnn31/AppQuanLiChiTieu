@@ -4,7 +4,7 @@ from core.transaction_manager import TransactionManager
 from datetime import datetime
 
 class BotAssistant:
-    API_KEY = "AIzaSyAP2lAU--C_QZzxcE48MH_k37xiWLHmHAM"
+    API_KEY = "AIzaSyCCEPGfOb3Hk18sl1PEnq1-rx2ubQbKcwQ"
 
     ASSISTANT_SYSTEM_PROMPT = """
     Bạn là một trợ lý ảo giúp người dùng quản lý chi tiêu cá nhân. Bạn phải tuân thủ các quy tắc sau:
@@ -20,12 +20,12 @@ class BotAssistant:
     def __init__(self, api_key: str = None):
         genai.configure(api_key=api_key if api_key else BotAssistant.API_KEY)
         self._model = genai.GenerativeModel(system_instruction=BotAssistant.ASSISTANT_SYSTEM_PROMPT,
-                                            model_name="gemini-2.5-flash")
+                                            model_name="gemini-2.5-pro")
         
         self._chat = self._model.start_chat()
 
     def setTransactionManager(self, transactionManager : TransactionManager):
-        self.transactionManager = transactionManager
+        self._transactionManager = transactionManager
 
     def clearMessages(self):
         self._chat = self._model.start_chat(history=[])
@@ -40,7 +40,7 @@ class BotAssistant:
                 parts = line.split(":")
                 if len(parts) == 3:
                     start_date, end_date = datetime.strptime(parts[1], "%Y-%m-%d"),datetime.strptime(parts[2], "%Y-%m-%d")
-                    res = self.transactionManager.getDailyTotalsInPeriod(startDate=start_date, endDate=end_date)
+                    res = self._transactionManager.getDailyTotalsInPeriod(startDate=start_date, endDate=end_date)
                     total_income, total_expense = 0, 0
                     for val in res.values() :
                         total_income += val[0]
@@ -53,7 +53,7 @@ class BotAssistant:
                 parts = line.split(":")
                 if len(parts) == 3:
                     start_date, end_date = datetime.strptime(parts[1], "%Y-%m-%d"),datetime.strptime(parts[2], "%Y-%m-%d")
-                    transactions = self.transactionManager.getTransactions(startDate=start_date, endDate=end_date)
+                    transactions = self._transactionManager.getTransactions(startDate=start_date, endDate=end_date)
                     if transactions:
                         secondStageMessages.append(f"- Danh sách giao dịch từ {start_date} đến {end_date}:")
                         for t in transactions:

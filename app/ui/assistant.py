@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication
 from PySide6.QtGui import QPixmap, QFont, QIcon
 from PySide6.QtCore import Qt
 from ui.widgets.chat_view import ChatView
@@ -6,11 +6,11 @@ from ui.assistant_ui import Ui_AssistantPage
 from core.bot_assistant import ChattingService, BotAssistant
 
 class AssistantPage(QWidget):
-    def __init__(self, transactionManager=None,parent=None):
+    def __init__(self,parent=None):
         super().__init__(parent)
         self.ui = Ui_AssistantPage()
         self.ui.setupUi(self)
-        
+
         self.emptyChatWidget = QWidget()
         emptyLayout = QVBoxLayout(self.emptyChatWidget)
         emptyLayout.setContentsMargins(0,80,0,0)
@@ -38,7 +38,9 @@ class AssistantPage(QWidget):
         self.chatView.pushMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+", isOutgoingMessage=False)
         self.ui.chatContainer.setCurrentWidget(self.chatView)
 
+        transactionManager = QApplication.instance().getTransactionManager()
         botAssistant = BotAssistant()
+        
         botAssistant.setTransactionManager(transactionManager)
         self._chatService = ChattingService(botAssistant=botAssistant)
         self._chatService.messageReceived.connect(self.onResponseReceived)
