@@ -1,18 +1,19 @@
 from PySide6.QtWidgets import QWidget, QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QSizePolicy, QHBoxLayout, QApplication
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap
+from ui.widgets.date_picker import DatePicker
 from datetime import datetime
 
-from core.transaction_manager import TransactionManager
+from core.transaction_manager import TransactionManager, TransactionQueryThread
 from ui.widgets.transaction_viewer import TransactionViewer
-from ui.widgets.date_picker import DatePicker
 from utils.window_helper import applyDropShadow, installWindowDragging, repolish
 from utils.value_formatter import isValidDateString
 
 class TransactionFinder(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.transactionManager : TransactionManager = QApplication.instance().getTransactionManager()
+        self._transactionManager : TransactionManager = QApplication.instance().getTransactionManager()
+        self._queryThread : TransactionQueryThread | None = None
         self.setupUi()
         
     
@@ -154,6 +155,9 @@ class TransactionFinder(QDialog):
         self.container.setGeometry(10, 10, self.width()-20, self.height()-20)
         
     def onFindClicked(self):
+        if self._queryThread is not None and self._queryThread.isRunning():
+            return
+        
         keyword = self.findEdit.text().strip()
         if keyword == "":
             self.findEdit.setProperty("warning", True)
@@ -188,8 +192,9 @@ class TransactionFinder(QDialog):
             self.endDateEdit.setProperty("warning", False)
             repolish(self.endDateEdit)
         
-        results = self.transactionManager.getTransactions(keyword=keyword, startDate=startDate, endDate=endDate)
-        self.transactionViewer.loadTransactions(results)
+        self._queryThread = TransactionQueryThread(self._transactionManager.getTransactions, keyword=keyword, startDate=startDate, endDate=endDate)
+        self._queryThread.onResultReady.connect(self.onQueryFinished)
+        self._queryThread.start()
 
     def onStartDateAction(self):
         endDate = self.endDateEdit.text().strip()
@@ -211,4 +216,6 @@ class TransactionFinder(QDialog):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.endDateEdit.setText(dialog.getSelectedDate().strftime("%d/%m/%Y"))
 
-    
+    def onQueryFinished(self, results):
+        self.transactionViewer.loadTransactions(results)
+        self._queryThread = None

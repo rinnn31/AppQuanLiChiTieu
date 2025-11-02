@@ -44,10 +44,10 @@ class OverviewPage(QWidget):
         fnt = QFont("Segoe UI", 14, QFont.Weight.Bold)
         self.ui.incomePieChart.setData(incomeCategories)
         self.ui.incomePieChart.setCenterText(getShortMoneyString(curSummary.total_income), fnt, QColor("#27AE60"))
-        self.ui.incomePieChart.setTitle("Thu nhập", QFont("Segoe UI", 12, QFont.Weight.Bold), QColor("#27AE60"))
+        self.ui.incomePieChart.setTitle("Thu nhập", fnt, QColor("#27AE60"))
         self.ui.expensePieChart.setData(expenseCategories)
         self.ui.expensePieChart.setCenterText(getShortMoneyString(curSummary.total_expense), fnt, QColor("#EB5757"))
-        self.ui.expensePieChart.setTitle("Chi tiêu", QFont("Segoe UI", 12, QFont.Weight.Bold), QColor("#EB5757"))
+        self.ui.expensePieChart.setTitle("Chi tiêu", fnt, QColor("#EB5757"))
         pass
 
     def refreshComparisionData(self):

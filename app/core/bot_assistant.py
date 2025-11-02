@@ -34,6 +34,9 @@ class BotAssistant:
         self._chat = self._model.start_chat(history=[])
 
     def _handleFinanceQueryIfNeeded(self, response: str):
+        ''' 
+        Phân tích các câu truy vấn từ phản hồi của bot trợ lý ảo và lấy dữ liệu từ TransactionManager để trả lời người dùng.
+        '''
         lines = response.split("\n")
         secondStageMessages = []
         for line in lines:
@@ -52,7 +55,7 @@ class BotAssistant:
                 else:
                     secondStageMessages.append("- Câu truy vấn GET_TOTAL_FINANCE không hợp lệ.")
             
-            elif line.startswith("GET_ALL_TRANSACTIONS:"):
+            elif line.startswith("GET_TRANSACTIONS:"):
                 parts = line.split(":")
                 if len(parts) == 3:
                     start_date, end_date = datetime.strptime(parts[1], "%Y-%m-%d"),datetime.strptime(parts[2], "%Y-%m-%d")
@@ -84,12 +87,8 @@ class BotAssistant:
                         secondStageMessages.append(f"- Không có giao dịch nào từ {start_date} đến {end_date}.")
                 else:
                     secondStageMessages.append("- Câu truy vấn GET_CATEGORY_FINANCE không hợp lệ.")
-
-
-
-                                                
-
         
+        # Nếu có câu truy vấn cần xử lí, gửi chúng đến bot trợ lý ảo để nhận phản hồi thứ hai
         if secondStageMessages:
             self._chat.send_message("\n".join(secondStageMessages))
     
@@ -99,6 +98,9 @@ class BotAssistant:
         return self._chat.last.text
 
 class ChattingThread(QThread):
+    '''
+    Thread để gửi và nhận tin nhắn từ BotAssistant mà không làm đơ giao diện người dùng.
+    '''
     responseReceived = Signal(str)
 
     def __init__(self, botAssistant: BotAssistant, message: str, parent=None):
@@ -115,6 +117,9 @@ class ChattingThread(QThread):
             self.responseReceived.emit("Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn.")
 
 class ChattingService(QObject):
+    '''
+    Dịch vụ trò chuyện với BotAssistant trong một thread riêng biệt.
+    '''
     stateChanged = Signal(str)
     messageReceived = Signal(str)
 
@@ -124,14 +129,17 @@ class ChattingService(QObject):
         self._currentThread = None
     
     def sendMessage(self, message: str, force: bool = False):
+        # Nếu force là True, dừng cuộc trò chuyện hiện tại và bắt đầu cuộc trò chuyện mới, ngược lại nếu đang có cuộc trò chuyện thì bỏ qua yêu cầu mới
         if force:
             self.stopCurrentChatting()
         if self._currentThread is not None and self._currentThread.isRunning():
             return
         
+        # Khởi tạo, gửi và chờ nhận phản hồi trong một thread riêng biệt
         self._currentThread = ChattingThread(self._botAssistant, message)
         self._currentThread.responseReceived.connect(self.onResponseReceived)
         self._currentThread.start()
+
         self.stateChanged.emit("busy")
 
     def stopCurrentChatting(self):

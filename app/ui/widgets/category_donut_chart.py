@@ -18,11 +18,11 @@ class CategoryDonutChart(QWidget):
         self._outerPieSeries = QPieSeries()
         self._innerPieSeries = QPieSeries()
         self._outerPieSeries.setLabelsVisible(False)
-        self._outerPieSeries.setPieSize(0.9) # 0 -> 1 
-        self._outerPieSeries.setHoleSize(0.6)
+        self._outerPieSeries.setPieSize(0.8) # 0 -> 1 
+        self._outerPieSeries.setHoleSize(0.5)
         self._innerPieSeries.setLabelsVisible(False)
-        self._innerPieSeries.setPieSize(0.6)
-        self._innerPieSeries.setHoleSize(0.55)
+        self._innerPieSeries.setPieSize(0.5)
+        self._innerPieSeries.setHoleSize(0.45)
 
         self._chart = QChart()
         self._chart.addSeries(self._outerPieSeries)
@@ -56,12 +56,6 @@ class CategoryDonutChart(QWidget):
 
     
     def setData(self, datas: dict[str, int]):
-        '''
-        dats: {
-            "tieude1": 100000,
-            "tieude2": 200000,
-            ...}
-        '''
         self._outerPieSeries.clear()
         self._innerPieSeries.clear()
 
@@ -73,6 +67,8 @@ class CategoryDonutChart(QWidget):
             return
         
         for category in datas:
+            if datas[category] <= 0:
+                continue
             outerSlice = self._outerPieSeries.append(category, datas[category])
             outerSlice.hovered.connect( partial(self._onSliceHovered, outerSlice, (category, datas[category])))
             outerSlice.setBrush(QColor(getMainColorForCategory(category)))
@@ -118,10 +114,7 @@ class CategoryDonutChart(QWidget):
             self._innerPieSeries.setPieEndAngle(360)  
 
         self._toggleTooltip(slice, item, isHovered)
-        
-        #Làm cho slice tách ra khi hover
-        slice.setExplodeDistanceFactor(0.1)
-        slice.setExploded(isHovered and len(self._outerPieSeries.slices()) > 1)
+    
 
     def setCenterText(self, text: str, font: QFont = None, color: QColor = None):
         self._centerLb.setText(text)

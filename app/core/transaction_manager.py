@@ -2,6 +2,19 @@ import sqlite3
 from typing import Optional
 from datetime import date
 from core.transaction import MonthlySummary, Transaction
+from PySide6.QtCore import QThread, Signal
+
+class TransactionQueryThread(QThread):
+    onResultReady = Signal(object)
+
+    def __init__(self, queryFunction, *args, **kwargs):
+        super().__init__()
+        self._queryFunction = queryFunction
+        self._args = args
+        self._kwargs = kwargs
+
+    def run(self):
+        self.onResultReady.emit(self._queryFunction(*self._args, **self._kwargs))
 
 
 class TransactionManager:
@@ -86,6 +99,11 @@ class TransactionManager:
         self.conn.commit()
     
     def addTransaction(self, transaction: Transaction):
+        '''
+        Thêm một giao dịch mới vào cơ sở dữ liệu.
+        '''
+
+        # Sử dụng placeholder ? để tránh SQL Injection
         self.conn.execute(f'''
                 INSERT INTO transactions (date, amount, note, category, type)
                 VALUES (?, ?, ?, ?, ?)
@@ -93,6 +111,9 @@ class TransactionManager:
         self.conn.commit()
         
     def addTransactions(self, transactions: list[Transaction]):
+        '''
+        Thêm nhiều giao dịch cùng lúc vào cơ sở dữ liệu.
+        '''
         datas = [(t.date, t.amount, t.note, t.category, t.type) for t in transactions]
         self.conn.executemany('''
                 INSERT INTO transactions (date, amount, note, category, type)
@@ -101,6 +122,9 @@ class TransactionManager:
         self.conn.commit()
 
     def updateTransaction(self, transaction: Transaction):
+        '''
+        Cập nhật thông tin của một giao dịch đã tồn tại.
+        '''
         self.conn.execute('''
                 UPDATE transactions
                 SET date = ?, amount = ?, note = ?, category = ?
@@ -110,6 +134,9 @@ class TransactionManager:
         pass
 
     def deleteTransaction(self, transaction_id: int):
+        '''
+        Xoá một giao dịch khỏi cơ sở dữ liệu dựa trên ID.
+        '''
         self.conn.execute('''
                 DELETE FROM transactions
                 WHERE id = ?
@@ -117,6 +144,9 @@ class TransactionManager:
         self.conn.commit()
 
     def getTransactionById(self, transaction_id: int) -> Transaction | None:
+        '''
+        Lấy thông tin một giao dịch dựa trên ID.
+        '''
         cursor = self.conn.execute('''
                 SELECT * FROM transactions
                 WHERE id = ?
@@ -129,7 +159,9 @@ class TransactionManager:
     
 
     def getTransactions(self, limit: Optional[int] = None, startDate: Optional[date] = None, endDate: Optional[date] = None, keyword: Optional[str] = None) -> list[Transaction]:
-        # Lấy danh giao dịch với các điều kiện lọc tùy chọn
+        '''
+        Lấy danh sách giao dịch với các điều kiện lọc tùy chọn.
+        '''
         
         query = 'SELECT * FROM transactions'
         conditions = []

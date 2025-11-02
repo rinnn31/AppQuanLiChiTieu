@@ -68,7 +68,7 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QScrollBar:vertical {\n"
-"	witdh: 6px;\n"
+"	width: 6px;\n"
 "}\n"
 "\n"
 "QScrollBar:horizontal {\n"

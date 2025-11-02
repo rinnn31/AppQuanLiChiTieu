@@ -11,8 +11,9 @@ class AssistantPage(QWidget):
         self.ui = Ui_AssistantPage()
         self.ui.setupUi(self)
 
-        self.emptyChatWidget = QWidget()
-        emptyLayout = QVBoxLayout(self.emptyChatWidget)
+        # Khởi tạo giao diện sẽ hiện thị khi chưa có cuộc trò chuyện nào
+        self._emptyChatWidget = QWidget()
+        emptyLayout = QVBoxLayout(self._emptyChatWidget)
         emptyLayout.setContentsMargins(0,80,0,0)
         emptyLayout.setSpacing(30)
 
@@ -28,59 +29,73 @@ class AssistantPage(QWidget):
         emptyLayout.addWidget(emptyLabel)
         emptyLayout.addStretch()
 
-        self.chatView = ChatView()
-        self.ui.inputTbox.returnPressed.connect(self.onInputEntered)
-        
-        self.ui.chatContainer.addWidget(self.emptyChatWidget)
-        self.ui.chatContainer.addWidget(self.chatView)
+        self._chatView = ChatView()
+       
+        # Thiết lập chat container và đặt giao diện trống làm giao diện mặc định
+        self.ui.chatContainer.addWidget(self._emptyChatWidget)
+        self.ui.chatContainer.addWidget(self._chatView)
+        self.ui.chatContainer.setCurrentWidget(self._emptyChatWidget)
 
-        self.chatView.pushMessage("Chào bạn! Mình là trợ lý ảo của ChiTiêu+. Mình có thể giúp gì cho bạn?", isOutgoingMessage=False)
-        self.chatView.pushMessage("Hãy nhập câu hỏi của bạn vào ô bên dưới và nhấn gửi nhé!", isOutgoingMessage=False)
-        self.chatView.pushMessage("Bạn có thể hỏi mình về các chủ đề như:\n- Quản lý chi tiêu cá nhân\n- Lập kế hoạch tài chính\n- Mẹo tiết kiệm tiền\n- Phân tích thói quen chi tiêu\n- Cách sử dụng ứng dụng ChiTiêu+", isOutgoingMessage=False)
-        self.ui.chatContainer.setCurrentWidget(self.chatView)
-
+        # Thiết lập dịch vụ trò chuyện với bot trợ lý ảo
         transactionManager = QApplication.instance().getTransactionManager()
         botAssistant = BotAssistant()
-        
         botAssistant.setTransactionManager(transactionManager)
         self._chatService = ChattingService(botAssistant=botAssistant)
         self._chatService.messageReceived.connect(self.onResponseReceived)
         self._chatService.stateChanged.connect(self.onChattingStateChanged)
 
         self.ui.sendBtn.clicked.connect(self.onSendBtnClicked)
+        self.ui.deleteBtn.clicked.connect(self.onDeleteChatBtnClicked)
+        self.ui.inputTbox.returnPressed.connect(self.onInputEntered)
 
     def onInputEntered(self):
+        # Kiểm tra trạng thái của nút gửi để tránh gửi nhiều yêu cầu cùng lúc
         if self.ui.sendBtn.property("state") == "busy":
             return
         message = self.ui.inputTbox.text().strip()
         if not message:
             return
         
+        # Chuyển sang giao diện chat nếu đang ở giao diện trống
+        if self.ui.chatContainer.currentWidget() == self._emptyChatWidget:
+            self.ui.chatContainer.setCurrentWidget(self._chatView)
+
+        # Gửi tin nhắn qua ChatService xử lí vào hiện thị trong ChatView
         self.ui.inputTbox.clear()
-        self.chatView.pushMessage(message)
+        self._chatView.pushMessage(message)
         self._chatService.sendMessage(message)
 
     def onSendBtnClicked(self):
+        # Chuyển sang giao diện chat nếu đang ở giao diện trống
+        if self.ui.chatContainer.currentWidget() == self._emptyChatWidget:
+            self.ui.chatContainer.setCurrentWidget(self._chatView)
+
         message = self.ui.inputTbox.text().strip()
         if not message:
+            # Nếu đang chờ phản hồi từ bot trợ lý ảo, hủy yêu cầu hiện tại
             if self.ui.sendBtn.property("state") == "busy":
                 self._chatService.stopCurrentChatting()
             return
         
         self.ui.inputTbox.clear()
-        self.chatView.pushMessage(message)
+        self._chatView.pushMessage(message)
         self._chatService.sendMessage(message)
             
     def onChattingStateChanged(self, state: str):
+        # Cập nhật trạng thái của nút gửi và giao diện chat dựa trên trạng thái hiện tại
         self.ui.sendBtn.setProperty("state", state)
         if state == "busy":
             self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_square.png"))
-            self.chatView.enableIncomeChattingState()
+            self._chatView.enableIncomeChattingState()
         elif state == "idle":
             self.ui.sendBtn.setIcon(QIcon(":/resources/images/white_up.png"))
-            self.chatView.disableIncomeChattingState()
+            self._chatView.disableIncomeChattingState()
 
     def onResponseReceived(self, response: str):
-        self.chatView.pushMessage(response, isOutgoingMessage=False)
+        # Nhận tin nhắn phan hồi từ bot trợ lý ảo và hiển thị trong giao diện chat
+        self._chatView.pushMessage(response.strip(), isOutgoingMessage=False)
 
-
+    def onDeleteChatBtnClicked(self):
+        # Xóa toàn bộ cuộc trò chuyện và hiển thị giao diện trống
+        self._chatView.clearMessages()
+        self.ui.chatContainer.setCurrentWidget(self._emptyChatWidget)

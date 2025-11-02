@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QScrollArea, QWidget, QVBoxLayout, QLabel, QSizePolicy, QHBoxLayout
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QFont, QMovie
+from PySide6.QtCore import Qt, QSize, QRect
+from PySide6.QtGui import QFont, QMovie, QFontMetrics, QPainter
 
 class ChatItem(QWidget):
     def __init__(self, parent=None, isOutgoingMessage: bool = True, message: str = "", isTypingType = False):
@@ -10,17 +10,26 @@ class ChatItem(QWidget):
         self._isOutgoingMessage = isOutgoingMessage
         self.setupUi()
 
-    def messageClicked(self, event):
-        print("Message clicked")
-        print("Current max width: " + self._messageLb.maximumWidth().__str__())
-        print("Current size: " + self._messageLb.size().__str__())
-        print("Current size hint: " + self._messageLb.sizeHint().__str__())
-        print("Current self size: " + self.size().__str__())
-
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self._messageLb.setMaximumWidth(int(self.width() * 0.45))
+        # Tính lại kích thước tin nhắn khi thay đổi kích thước khung chat
+        self._calculateMessageSize()
+
+    def _calculateMessageSize(self):
+        # Nếu là tin nhắn biểu tượng đang gõ thì không cần tính kích thước
+        if self._isTypingType:
+            return
+        
+        #Tính kích thước tin nhắn, nếu vượt quá 45% chiều rộng của khung chat thì cho xuống dòng
+        metrics = QFontMetrics(self._messageLb.font())
+        messageRect = metrics.boundingRect(QRect(0,0,10000, 10000), 0, self._message)
+        if messageRect.width() > self.width() * 0.45:
+            self._messageLb.setWordWrap(True)
+            self._messageLb.setFixedWidth(self.width() * 0.45)
+        else:
+            self._messageLb.setWordWrap(False)
+            self._messageLb.setFixedWidth(messageRect.width() + 30)
+        self._messageLb.adjustSize()
 
     def setupUi(self):
         layout = QHBoxLayout(self)
@@ -28,18 +37,21 @@ class ChatItem(QWidget):
         self._messageLb.setText(self._message)
         self._messageLb.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
         self._messageLb.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
-        self._messageLb.setFont(QFont("Segoe UI", 11))
         self._messageLb.setWordWrap(True)
+        self._messageLb.setFont(QFont("Segoe UI", 11))
+        
+        # Thiết lập giao diện cho tin nhắn đang gõ
         if self._isTypingType:
             self._messageLb.setScaledContents(True)
             self._messageLb.setFixedSize(65, 40)
             self._movie = QMovie(":resources/gifs/typing.gif")
             self._movie.setSpeed(150)
-            self._movie.setScaledSize(QSize(50, 30))
+            self._movie.setScaledSize(QSize(50, 40))
             self._messageLb.setMovie(self._movie)
             self._movie.start()
+        
+        # Thiết lập giao diện cho tin nhắn gửi và nhận
         if self._isOutgoingMessage:
-            print("outgoing")
             self._messageLb.setStyleSheet("background: #0AB6D1; color: white; padding: 10px; border-radius: 8px;")
             layout.addStretch(1)
             layout.addWidget(self._messageLb, 0, Qt.AlignmentFlag.AlignRight)
@@ -48,19 +60,14 @@ class ChatItem(QWidget):
             layout.addWidget(self._messageLb, 0, Qt.AlignmentFlag.AlignLeft)
             layout.addStretch(1)          
         self.setLayout(layout)
+        self._calculateMessageSize()
 
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        self.setFixedHeight(self._messageLb.sizeHint().height() + 20)
 
     def isTypingType(self) -> bool:
         return self._isTypingType
     
     def isOutgoingMessage(self) -> bool:
         return self._isOutgoingMessage
-    
-    def setMaxContentWidth(self, width: int):
-        print("Set max width: " + width.__str__())
-        self._messageLb.setMaximumWidth(width)
 
     def __del__(self):
         if hasattr(self, "_movie"):
@@ -118,7 +125,7 @@ class ChatView(QScrollArea):
             }
 
             QScrollBar:vertical {
-                witdh: 6px;
+                width: 6px;
             }
 
             QScrollBar:horizontal {
@@ -136,26 +143,41 @@ class ChatView(QScrollArea):
         self.setWidget(self._chatContainer)
         self.setWidgetResizable(True)
         self.verticalScrollBar().setMaximumWidth(6)
+        # Tự động cuộn xuống dưới khi có tin nhắn mới
+        self.verticalScrollBar().rangeChanged.connect(lambda: self.verticalScrollBar().setValue(self.verticalScrollBar().maximum()))
 
     def pushMessage(self, message: str, isOutgoingMessage: bool = True):
+        # Nếu là tin nhắn từ trợ lý ảo thì tắt trạng thái đang gõ
         if not isOutgoingMessage:
             self.disableIncomeChattingState()
+
+        # Tạo bong bóng chat mới và thêm vào giao diện
         messageItem = ChatItem(self._chatContainer, isOutgoingMessage=isOutgoingMessage, message=message)
         self._chatLayout.addWidget(messageItem)
     
+    
     def enableIncomeChattingState(self):
-        if self.getTypingStateItem() is not None:
+        '''
+        Hiện thị trạng thái đang gõ của trợ lý ảo
+        '''
+        # Nếu đã có trạng thái đang gõ thì không thêm nữa
+        if self._getTypingStateItem() is not None:
             return
         messageItem = ChatItem(self._chatContainer, isOutgoingMessage=False, isTypingType=True)
         self._chatLayout.addWidget(messageItem)
+        
 
     def disableIncomeChattingState(self):
-        typingStateItem = self.getTypingStateItem()
+        '''
+        Ẩn trạng thái đang gõ của trợ lý ảo
+        '''
+
+        typingStateItem = self._getTypingStateItem()
         if typingStateItem is not None:
             typingStateItem.setParent(None)
             typingStateItem.deleteLater()
 
-    def getTypingStateItem(self) -> ChatItem | None:
+    def _getTypingStateItem(self) -> ChatItem | None:
         for layoutIndex in range(self._chatLayout.count()-1, -1, -1):
             item = self._chatLayout.itemAt(layoutIndex).widget()
             if isinstance(item, ChatItem) and not item.isOutgoingMessage() and item.isTypingType():
@@ -163,6 +185,9 @@ class ChatView(QScrollArea):
         return None
 
     def clearMessages(self):
+        '''
+        Xóa toàn bộ tin nhắn trong giao diện chat
+        '''
         layout = self.widget().layout()
         while layout.count():
             item = layout.takeAt(0)

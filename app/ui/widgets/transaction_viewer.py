@@ -60,7 +60,7 @@ class TransactionViewer(QScrollArea):
             }
 
             QScrollBar:vertical {
-                witdh: 6px;
+                width: 6px;
             }
 
             QScrollBar:horizontal {
