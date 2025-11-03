@@ -2,8 +2,8 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
 from PySide6.QtGui import QPixmap, QFont
 
-from utils.window_helper import applyDropShadow
-from utils.transaction_style import getColorForType, getIconForCategory, getMainColorForCategory
+from app.utils.window_helper import applyDropShadow
+from app.utils.transaction_style import getColorForType, getIconForCategory, getMainColorForCategory
 class ModernTooltip(QWidget):
 
     def __init__(self, parent=None):

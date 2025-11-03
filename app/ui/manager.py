@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QApplication, QDialog
-from ui.manager_ui import Ui_ManagerPage
-from ui.widgets.transaction_editor import TransactionEditor
-from ui.widgets.transaction_finder import TransactionFinder
+from app.ui.manager_ui import Ui_ManagerPage
+from app.ui.widgets.transaction_editor import TransactionEditor
+from app.ui.widgets.transaction_finder import TransactionFinder
 
 class ManagerPage(QWidget):
     def __init__(self):

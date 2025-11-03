@@ -1,11 +1,10 @@
 import google.generativeai as genai
-from PySide6.QtCore import QObject, Signal, QThread
-from core.transaction_manager import TransactionManager
 from datetime import datetime
-from utils.transaction_style import INCOME_CATEGORIES , EXPENSE_CATEGORIES
+from app.database.transaction_manager import TransactionManager
+from app.utils.transaction_style import INCOME_CATEGORIES , EXPENSE_CATEGORIES
 
 class BotAssistant:
-    API_KEY = "AIzaSyCCEPGfOb3Hk18sl1PEnq1-rx2ubQbKcwQ"
+    API_KEY = None
 
     ASSISTANT_SYSTEM_PROMPT = f"""
     Bạn là một trợ lý ảo giúp người dùng quản lý chi tiêu cá nhân. Bạn phải tuân thủ các quy tắc sau:
@@ -20,12 +19,15 @@ class BotAssistant:
     """
 
 
-    def __init__(self, api_key: str = None):
-        genai.configure(api_key=api_key if api_key else BotAssistant.API_KEY)
+    def __init__(self):
+        genai.configure(api_key=BotAssistant.API_KEY)
         self._model = genai.GenerativeModel(system_instruction=BotAssistant.ASSISTANT_SYSTEM_PROMPT,
                                             model_name="gemini-2.0-flash")
         
         self._chat = self._model.start_chat()
+
+    def setApiKey(cls, api_key: str):
+        cls.API_KEY = api_key
 
     def setTransactionManager(self, transactionManager : TransactionManager):
         self._transactionManager = transactionManager
@@ -96,61 +98,4 @@ class BotAssistant:
         self._chat.send_message(message)
         self._handleFinanceQueryIfNeeded(self._chat.last.text)
         return self._chat.last.text
-
-class ChattingThread(QThread):
-    '''
-    Thread để gửi và nhận tin nhắn từ BotAssistant mà không làm đơ giao diện người dùng.
-    '''
-    responseReceived = Signal(str)
-
-    def __init__(self, botAssistant: BotAssistant, message: str, parent=None):
-        super().__init__(parent)
-        self._botAssistant = botAssistant
-        self._message = message
-
-    def run(self):
-        try:
-            resp =  self._botAssistant.sendMessage(self._message)
-            self.responseReceived.emit(resp)
-        except Exception as e:
-            print(f"Error in ChattingThread: {e}")
-            self.responseReceived.emit("Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn.")
-
-class ChattingService(QObject):
-    '''
-    Dịch vụ trò chuyện với BotAssistant trong một thread riêng biệt.
-    '''
-    stateChanged = Signal(str)
-    messageReceived = Signal(str)
-
-    def __init__(self, parent=None, botAssistant: BotAssistant = None):
-        super().__init__(parent)
-        self._botAssistant = botAssistant if botAssistant else BotAssistant()
-        self._currentThread = None
-    
-    def sendMessage(self, message: str, force: bool = False):
-        # Nếu force là True, dừng cuộc trò chuyện hiện tại và bắt đầu cuộc trò chuyện mới, ngược lại nếu đang có cuộc trò chuyện thì bỏ qua yêu cầu mới
-        if force:
-            self.stopCurrentChatting()
-        if self._currentThread is not None and self._currentThread.isRunning():
-            return
-        
-        # Khởi tạo, gửi và chờ nhận phản hồi trong một thread riêng biệt
-        self._currentThread = ChattingThread(self._botAssistant, message)
-        self._currentThread.responseReceived.connect(self.onResponseReceived)
-        self._currentThread.start()
-
-        self.stateChanged.emit("busy")
-
-    def stopCurrentChatting(self):
-        if self._currentThread is not None and self._currentThread.isRunning():
-            self._currentThread.terminate()
-            self._currentThread.wait()
-            self.stateChanged.emit("idle")
-            self._currentThread = None
-
-    def onResponseReceived(self, response: str):
-        self.messageReceived.emit(response)
-        self.stateChanged.emit("idle")
-        self._currentThread = None
     

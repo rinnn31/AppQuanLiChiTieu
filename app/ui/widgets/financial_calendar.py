@@ -3,8 +3,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, \
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QDate
 from datetime import date
-from core.transaction_manager import TransactionManager
-from utils.window_helper import repolish, applyDropShadow
+from app.database import TransactionManager
+from app.utils.window_helper import repolish, applyDropShadow
 
 class MonthYearPicker(QDialog):
     def __init__(self, parent=None, initialYear=2025, initialMonth=1):
@@ -374,7 +374,7 @@ class FinancialCalendar(QWidget):
                     expenseLb.deleteLater()
 
                 if date.toString("yyyy-MM-dd") in datas:
-                    from utils.value_formatter import getShortMoneyString
+                    from app.utils.value_formatter import getShortMoneyString
                     income, expense = datas[date.toString("yyyy-MM-dd")]
                     if income > 0:
                         incomeLb = QLabel(getShortMoneyString(income, ""), parent=dateWidget)
@@ -401,7 +401,7 @@ class FinancialCalendar(QWidget):
         self._fillCalendar()
 
     def _onDateItemSelected(self, selectedItem: QWidget):
-        from utils.window_helper import repolish
+        from app.utils.window_helper import repolish
         if self._selectedDateItem:
             self._selectedDateItem.setProperty("selected", "false")
             repolish(self._selectedDateItem)

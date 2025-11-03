@@ -1,10 +1,8 @@
 from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtGui import QColor, QFont
 import datetime
-from dateutil.relativedelta import relativedelta
-from ui.overview_ui import Ui_OverviewPage
-from utils.window_helper import applyDropShadow
-from core.transaction import MonthlySummary
+from app.ui.overview_ui import Ui_OverviewPage
+from app.utils.window_helper import applyDropShadow
 
 class OverviewPage(QWidget):
 
@@ -37,7 +35,7 @@ class OverviewPage(QWidget):
         curMonth = datetime.datetime.now().strftime("%Y-%m")
         curSummary = self.transactionManager.getMonthlySummary(curMonth)
         
-        from utils.value_formatter import getShortMoneyString
+        from app.utils.value_formatter import getShortMoneyString
         incomeCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 0)
         expenseCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 1)
 

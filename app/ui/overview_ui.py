@@ -18,10 +18,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
     QSizePolicy, QTabWidget, QVBoxLayout, QWidget)
 
-from ui.widgets.category_donut_chart import CategoryDonutChart
-from ui.widgets.financial_comparision_chart import FinancialComparisionChart
-from ui.widgets.transaction_viewer import TransactionViewer
-import resources.resources_rc
+from app.ui.widgets.category_donut_chart import CategoryDonutChart
+from app.ui.widgets.financial_comparision_chart import FinancialComparisionChart
+from app.ui.widgets.transaction_viewer import TransactionViewer
+import app.resources.resources_rc
 
 class Ui_OverviewPage(object):
     def setupUi(self, OverviewPage):

@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLineEdit, QPushButton,
     QSizePolicy, QStackedWidget, QVBoxLayout, QWidget)
-import resources.resources_rc
+import app.resources.resources_rc
 
 class Ui_AssistantPage(object):
     def setupUi(self, AssistantPage):

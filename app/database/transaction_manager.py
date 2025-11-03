@@ -1,8 +1,10 @@
 import sqlite3
 from typing import Optional
 from datetime import date
-from core.transaction import MonthlySummary, Transaction
 from PySide6.QtCore import QThread, Signal
+
+from app.database.transaction import MonthlySummary, Transaction
+
 
 class TransactionQueryThread(QThread):
     onResultReady = Signal(object)

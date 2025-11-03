@@ -2,8 +2,8 @@ from PySide6.QtWidgets import QWidget, QScrollArea, QHBoxLayout, QLabel, QStacke
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
-from ui.widgets.transaction_editor import TransactionEditor
-from core.transaction import Transaction
+from app.ui.widgets.transaction_editor import TransactionEditor
+from app.database import Transaction
 
 class TransactionViewer(QScrollArea):
     def __init__(self, parent=None):
@@ -143,7 +143,7 @@ class TransactionViewer(QScrollArea):
             """)
         layout = QHBoxLayout(widget)
 
-        from utils.transaction_style import getIconForCategory, getSubColorForCategory, getColorForType
+        from app.utils.transaction_style import getIconForCategory, getSubColorForCategory, getColorForType
         iconPixmap = QPixmap(getIconForCategory(data.category))
         iconLb = QLabel()
         iconLb.setAlignment(Qt.AlignmentFlag.AlignCenter)

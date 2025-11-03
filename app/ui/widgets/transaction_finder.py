@@ -1,13 +1,12 @@
 from PySide6.QtWidgets import QWidget, QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QSizePolicy, QHBoxLayout, QApplication
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap
-from ui.widgets.date_picker import DatePicker
 from datetime import datetime
-
-from core.transaction_manager import TransactionManager, TransactionQueryThread
-from ui.widgets.transaction_viewer import TransactionViewer
-from utils.window_helper import applyDropShadow, installWindowDragging, repolish
-from utils.value_formatter import isValidDateString
+from app.database import TransactionManager, TransactionQueryThread
+from app.ui.widgets.date_picker import DatePicker
+from app.ui.widgets.transaction_viewer import TransactionViewer
+from app.utils.window_helper import applyDropShadow, installWindowDragging, repolish
+from app.utils.value_formatter import isValidDateString
 
 class TransactionFinder(QDialog):
     def __init__(self, parent=None):

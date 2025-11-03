@@ -2,11 +2,11 @@ from PySide6.QtWidgets import QMainWindow, QPushButton
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt, QMargins
 
-from ui.home_ui import Ui_MainWindow
-from ui.overview import OverviewPage
-from ui.manager import ManagerPage
-from ui.assistant import AssistantPage
-from utils.window_helper import installWindowDragging, applyDropShadow
+from app.ui.home_ui import Ui_MainWindow
+from app.ui.overview import OverviewPage
+from app.ui.manager import ManagerPage
+from app.ui.assistant import AssistantPage
+from app.utils.window_helper import installWindowDragging, applyDropShadow
 
 class HomeWindow(QMainWindow):
     def __init__(self):

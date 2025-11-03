@@ -244,19 +244,19 @@ QTabWidget::pane {
   <customwidget>
    <class>CategoryDonutChart</class>
    <extends>QWidget</extends>
-   <header>ui.widgets.category_donut_chart</header>
+   <header>app.ui.widgets.category_donut_chart</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FinancialComparisionChart</class>
    <extends>QWidget</extends>
-   <header>ui.widgets.financial_comparision_chart</header>
+   <header>app.ui.widgets.financial_comparision_chart</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TransactionViewer</class>
    <extends>QWidget</extends>
-   <header>ui.widgets.transaction_viewer</header>
+   <header>app.ui.widgets.transaction_viewer</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

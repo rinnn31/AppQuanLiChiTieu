@@ -1,8 +1,11 @@
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtGui import QIcon
-from ui.home import HomeWindow
-from core.transaction_manager import TransactionManager
+from dotenv import load_dotenv
+import os
+import sys
+from app.ui.home import HomeWindow
+from app.database.transaction_manager import TransactionManager
 
 class FinancialApp(QApplication):
     def __init__(self, argv):
@@ -31,7 +34,11 @@ class FinancialApp(QApplication):
 
 
 if __name__ == "__main__":
-    import sys
+    load_dotenv()
+    geminiKey = os.getenv("GEMINI_API_KEY")
+    if not geminiKey:
+        print("Warning: GEMINI_API_KEY not found in environment variables. Chatbot functionality may be limited.")
+
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     FinancialApp.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)

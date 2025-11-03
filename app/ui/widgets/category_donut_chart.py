@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt, QMargins
 from PySide6.QtCharts import QPieSeries, QChart, QChartView
 from PySide6.QtGui import QPainter, QCursor, QColor, QFont
 
-from ui.widgets.modern_tooltip import CategoryAmountTooltip
-from utils.transaction_style import getMainColorForCategory, getSubColorForCategory, getIconForCategory
+from app.ui.widgets.modern_tooltip import CategoryAmountTooltip
+from app.utils.transaction_style import getMainColorForCategory, getSubColorForCategory, getIconForCategory
 
 class CategoryDonutChart(QWidget):
     def __init__(self, parent=None):

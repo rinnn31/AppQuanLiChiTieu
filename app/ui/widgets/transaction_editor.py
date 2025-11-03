@@ -3,11 +3,12 @@ from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QLabel, QLineEdit,
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap, QRegularExpressionValidator
 
-from core.transaction import Transaction
-from ui.widgets.date_picker import DatePicker
-from utils.window_helper import applyDropShadow, repolish, installWindowDragging
-from utils.transaction_style import EXPENSE_CATEGORIES, INCOME_CATEGORIES, getIconForCategory, getSubColorForCategory
-from utils.value_formatter import isValidDateString, convertDateStringFormat
+from app.database import Transaction
+from app.ui.widgets.date_picker import DatePicker
+from app.utils.window_helper import applyDropShadow, repolish, installWindowDragging
+from app.utils.transaction_style import EXPENSE_CATEGORIES, INCOME_CATEGORIES, getIconForCategory, getSubColorForCategory
+from app.utils.value_formatter import isValidDateString, convertDateStringFormat
+
 class TransactionEditor(QDialog):
     def __init__(self, parent: QWidget = None, transactionType = 0, editMode: bool = True, transactionId : int = None):
         super().__init__(parent)

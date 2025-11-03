@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication
 from PySide6.QtGui import QPixmap, QFont, QIcon
 from PySide6.QtCore import Qt
-from ui.widgets.chat_view import ChatView
-from ui.assistant_ui import Ui_AssistantPage
-from core.bot_assistant import ChattingService, BotAssistant
+from app.ui.widgets.chat_view import ChatView
+from app.ui.assistant_ui import Ui_AssistantPage
+from app.chatbot import ChattingService, BotAssistant
 
 class AssistantPage(QWidget):
     def __init__(self,parent=None):
