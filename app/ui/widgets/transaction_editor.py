@@ -311,14 +311,17 @@ class TransactionEditor(QDialog):
         self.amountEdit.setText(f"{number:,}")
 
     def onConfirmClicked(self):
+        # Lấy dữ liệu từ form
         amount = self.amountEdit.text().replace(",", "")
         date = self.dateEdit.text()
         category = self._getSelectedCategory()
         note = self.noteEdit.text()
 
         self.warningLb.setText("")
+        # Kiêm tra tính hợp lệ của dữ liệu, nếu không hợp lệ thì hiển thị cảnh báo
         if amount == "":
             self.warningLb.setText("Vui lòng nhập số tiền!")
+            # Chuyển sang trạng thái cảnh báo cho ô nhập liệu, viền đỏ
             self.amountEdit.setProperty("warning", True)
             repolish(self.amountEdit)
             return
@@ -342,11 +345,14 @@ class TransactionEditor(QDialog):
             return
         
         formatedDate = convertDateStringFormat(date)
+        # Tạo đối tượng Transaction từ dữ liệu nhập vào
         transaction = Transaction(self._transactionId, int(amount), category, self._transactionType, formatedDate, note)
+        # Nếu có transactionId thì cập nhật giao dịch, ngược lại thêm giao dịch mới
         if self._transactionId:
             self._transactionManager.updateTransaction(transaction)
         else:
             self._transactionManager.addTransaction(transaction)
+        # Đóng hộp thoại và trả về kết quả thành công
         self.accept()
 
     def onDatePickerTriggered(self):

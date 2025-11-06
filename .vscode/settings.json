@@ -1,0 +1,13 @@
+{
+    "folderStructure.ignorePatterns": [
+        "node_modules",
+        ".*",
+        "__pycache__",
+        "data",
+        "tools",
+        "*_ui.py",
+        "*.ui",
+        "resources",
+        "__init__.py"
+    ]
+}

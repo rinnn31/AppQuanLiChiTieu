@@ -2,9 +2,6 @@ from PySide6.QtCore import QObject, QThread, Signal
 from app.chatbot.bot_assistant import BotAssistant
 
 class ChattingThread(QThread):
-    '''
-    Thread để gửi và nhận tin nhắn từ BotAssistant mà không làm đơ giao diện người dùng.
-    '''
     responseReceived = Signal(str)
 
     def __init__(self, botAssistant: BotAssistant, message: str, parent=None):
@@ -21,15 +18,15 @@ class ChattingThread(QThread):
             self.responseReceived.emit("Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn.")
 
 class ChattingService(QObject):
-    '''
-    Dịch vụ trò chuyện với BotAssistant trong một thread riêng biệt.
-    '''
+    # Tín hiệu phát ra khi trạng thái của dịch vụ thay đổi (ví dụ: từ idle sang busy)
     stateChanged = Signal(str)
+    # Tín hiệu phát ra khi nhận được tin nhắn phản hồi từ bot trợ lý ảo
     messageReceived = Signal(str)
 
-    def __init__(self, parent=None, botAssistant: BotAssistant = None):
+    def __init__(self, botAssistant, parent=None):
         super().__init__(parent)
-        self._botAssistant = botAssistant if botAssistant else BotAssistant()
+        self._botAssistant = botAssistant
+        # Biến để theo dõi thread hiện tại
         self._currentThread = None
     
     def sendMessage(self, message: str, force: bool = False):
@@ -44,16 +41,22 @@ class ChattingService(QObject):
         self._currentThread.responseReceived.connect(self.onResponseReceived)
         self._currentThread.start()
 
+        # Cập nhật trạng thái về busy
         self.stateChanged.emit("busy")
 
     def stopCurrentChatting(self):
+        # Kiểm tra xem có thread nào đang chạy không
         if self._currentThread is not None and self._currentThread.isRunning():
+            # Dừng thread hiện tại
             self._currentThread.terminate()
             self._currentThread.wait()
+            # Thông báo trạng thái về idle
             self.stateChanged.emit("idle")
             self._currentThread = None
 
     def onResponseReceived(self, response: str):
+        # Phát tín hiệu phản hồi đã nhận được
         self.messageReceived.emit(response)
+        # Cập nhật trạng thái về idle
         self.stateChanged.emit("idle")
         self._currentThread = None

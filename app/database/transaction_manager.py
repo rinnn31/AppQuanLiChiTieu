@@ -20,7 +20,7 @@ class TransactionQueryThread(QThread):
 
 
 class TransactionManager:
-    TRANSACTION_DB_PATH = "transactions.db"
+    TRANSACTION_DB_PATH = "data/transactions.db"
 
     def __init__(self):
         # Kết nối đến cơ sở dữ liệu tại đường dẫn TRANSACTION_DB_PATH, nếu không tồn tại sẽ tự tạo mới
@@ -32,6 +32,7 @@ class TransactionManager:
     def _createAllNecessaryTables(self):
         #executescript: thực hiện nhiều lệnh cùng 1 lúc 
         self.conn.executescript(''' 
+        
             -- Tạo bảng transcations (lưu các giao dịch) nếu chưa có
                 CREATE TABLE IF NOT EXISTS transactions ( 
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,18 +41,20 @@ class TransactionManager:
                     note TEXT,
                     category TEXT,
                     type INTEGER NOT NULL CHECK (type IN (0, 1)));
+                                
             -- Tạo bảng tổng hợp giao dịch theo tháng 
-                CREATE TABLE IF NOT EXISTS monthly_transaction_summaries (
+                CREATE TABLE IF NOT EXISTS monthly_summaries (
                     month TEXT PRIMARY KEY,
                     total_income INTEGER NOT NULL,
                     total_expense INTEGER NOT NULL,
                     transaction_count INTEGER NOT NULL);
+                                
             -- Trigger tự động cập nhật tháng khi có giao dịch mới . Khi thêm giao dịch mới:
                 -- Nếu tháng đó chưa có => thêm dòng mới 
                 -- Nếu đã có  => Cập nhật (UPDATE) tổng thu chi và số lượng giao dịch
                 CREATE TRIGGER IF NOT EXISTS after_insert_transaction AFTER INSERT ON transactions
                 BEGIN
-                    INSERT INTO monthly_transaction_summaries (month, total_income, total_expense, transaction_count)
+                    INSERT INTO monthly_summaries (month, total_income, total_expense, transaction_count)
                     VALUES (strftime('%Y-%m', NEW.date), 
                             CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                             CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
@@ -66,36 +69,36 @@ class TransactionManager:
                                          
                 CREATE TRIGGER IF NOT EXISTS after_delete_transaction AFTER DELETE ON transactions
                 BEGIN
-                    UPDATE monthly_transaction_summaries
+                    UPDATE monthly_summaries
                     SET total_income = total_income - CASE WHEN OLD.type = 0 THEN OLD.amount ELSE 0 END,
                         total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END,
                         transaction_count = transaction_count - 1
                     WHERE month = strftime('%Y-%m', OLD.date);
                     
-                    DELETE FROM monthly_transaction_summaries
+                    DELETE FROM monthly_summaries
                     WHERE month = strftime('%Y-%m', OLD.date) AND transaction_count <= 0;
                 END;
                           
                 CREATE TRIGGER IF NOT EXISTS after_update_transaction AFTER UPDATE ON transactions
                 BEGIN
                     -- Cập nhật bản tóm tắt của tháng cũ
-                    UPDATE monthly_transaction_summaries
+                    UPDATE monthly_summaries
                     SET total_income = total_income - CASE WHEN OLD.type = 0 THEN OLD.amount ELSE 0 END,
                         total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END
                     WHERE month = strftime('%Y-%m', OLD.date);
                     -- Cập nhật của tháng mới (nếu chỉ thay đổi ngày => Tháng mới + thêm số tiền mới cập nhật vừa bị trừ)
-                    UPDATE monthly_transaction_summaries
+                    UPDATE monthly_summaries
                     SET total_income = total_income + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                         total_expense = total_expense + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
                         transaction_count = transaction_count + 1
                     WHERE month = strftime('%Y-%m', NEW.date);
                     -- Nếu tháng mới chưa có thống kê → thêm mới
-                    INSERT INTO monthly_transaction_summaries (month, total_income, total_expense, transaction_count)
+                    INSERT INTO monthly_summaries (month, total_income, total_expense, transaction_count)
                     SELECT strftime('%Y-%m', NEW.date), 
                            CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
                            CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
                            1
-                    WHERE NOT EXISTS (SELECT 1 FROM monthly_transaction_summaries WHERE month = strftime('%Y-%m', NEW.date));
+                    WHERE NOT EXISTS (SELECT 1 FROM monthly_summaries WHERE month = strftime('%Y-%m', NEW.date));
                 END;
                 ''')
         self.conn.commit()
@@ -196,7 +199,7 @@ class TransactionManager:
         Returns:
         Đối tượng MonthlySummary hoặc None nếu không có dữ liệu cho tháng đó.
         '''
-        query = 'SELECT * FROM monthly_transaction_summaries WHERE month = ?'
+        query = 'SELECT * FROM monthly_summaries WHERE month = ?'
         cursor = self.conn.execute(query, (month,))
         row = cursor.fetchone()
         if row:

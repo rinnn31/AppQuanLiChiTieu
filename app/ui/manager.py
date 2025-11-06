@@ -30,8 +30,8 @@ class ManagerPage(QWidget):
             return
         
         transactions = self.transactionManager.getTransactions(startDate=date, endDate=date)
-        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 1])
-        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 0])
+        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 0])
+        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 1])
 
     def onAddIncomeClicked(self):
         dialog = TransactionEditor(self, transactionType=0, editMode=True)
