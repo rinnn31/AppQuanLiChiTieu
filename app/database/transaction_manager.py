@@ -5,6 +5,7 @@ from PySide6.QtCore import QThread, Signal
 
 from app.database.transaction import MonthlySummary, Transaction
 
+import os
 
 class TransactionQueryThread(QThread):
     onResultReady = Signal(object)
@@ -23,10 +24,14 @@ class TransactionManager:
     TRANSACTION_DB_PATH = "data/transactions.db"
 
     def __init__(self):
-        # Kết nối đến cơ sở dữ liệu tại đường dẫn TRANSACTION_DB_PATH, nếu không tồn tại sẽ tự tạo mới
+        
+        # Tạo thư mục chứa database nếu chưa tồn tại
+        os.makedirs(os.path.dirname(self.TRANSACTION_DB_PATH), exist_ok=True)
+        
+        # Kết nối đến cơ sở dữ liệu (tự tạo mới nếu chưa có)
         self.conn = sqlite3.connect(self.TRANSACTION_DB_PATH, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row #Truy cập cột theo tên thay vì index
-
+        self.conn.row_factory = sqlite3.Row  # Truy cập cột theo tên thay vì index
+        
         self._createAllNecessaryTables()
 
     def _createAllNecessaryTables(self):
@@ -83,22 +88,21 @@ class TransactionManager:
                 BEGIN
                     -- Cập nhật bản tóm tắt của tháng cũ
                     UPDATE monthly_summaries
-                    SET total_income = total_income - CASE WHEN OLD.type = 0 THEN OLD.amount ELSE 0 END,
-                        total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END
-                    WHERE month = strftime('%Y-%m', OLD.date);
                     -- Cập nhật của tháng mới (nếu chỉ thay đổi ngày => Tháng mới + thêm số tiền mới cập nhật vừa bị trừ)
-                    UPDATE monthly_summaries
-                    SET total_income = total_income + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
-                        total_expense = total_expense + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
-                        transaction_count = transaction_count + 1
-                    WHERE month = strftime('%Y-%m', NEW.date);
+                    SET total_income = total_income - CASE WHEN OLD.type = 0 THEN OLD.amount ELSE 0 END,
+                        total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END,
+                        transaction_count = transaction_count - 1
+                    WHERE month = strftime('%Y-%m', OLD.date);
                     -- Nếu tháng mới chưa có thống kê → thêm mới
                     INSERT INTO monthly_summaries (month, total_income, total_expense, transaction_count)
-                    SELECT strftime('%Y-%m', NEW.date), 
-                           CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
-                           CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
-                           1
-                    WHERE NOT EXISTS (SELECT 1 FROM monthly_summaries WHERE month = strftime('%Y-%m', NEW.date));
+                    VALUES (strftime('%Y-%m', NEW.date), 
+                            CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
+                            CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
+                            1)
+                    ON CONFLICT(month) DO UPDATE SET
+                        total_income = total_income + CASE WHEN NEW.type = 0 THEN NEW.amount ELSE 0 END,
+                        total_expense = total_expense + CASE WHEN NEW.type = 1 THEN NEW.amount ELSE 0 END,
+                        transaction_count = transaction_count + 1;
                 END;
                 ''')
         self.conn.commit()
