@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QAreaSeries, QValueAxis, QCategoryAxis
 from PySide6.QtGui import QPainter, QBrush, QColor, QPen, QCursor
 import math
-from ui.widgets.modern_tooltip import SummaryAmountTooltip
+from app.ui.widgets.modern_tooltip import SummaryAmountTooltip
 
 class FinancialComparisionChart(QWidget):
     def __init__(self, parent=None):

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QApplication, QDialog
-from ui.manager_ui import Ui_ManagerPage
-from ui.widgets.transaction_editor import TransactionEditor
-from ui.widgets.transaction_finder import TransactionFinder
+from app.ui.manager_ui import Ui_ManagerPage
+from app.ui.widgets.transaction_editor import TransactionEditor
+from app.ui.widgets.transaction_finder import TransactionFinder
 
 class ManagerPage(QWidget):
     def __init__(self):
@@ -30,8 +30,8 @@ class ManagerPage(QWidget):
             return
         
         transactions = self.transactionManager.getTransactions(startDate=date, endDate=date)
-        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 1])
-        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 0])
+        self.ui.incomeTab.loadTransactions([t for t in transactions if t.type == 0])
+        self.ui.expenseTab.loadTransactions([t for t in transactions if t.type == 1])
 
     def onAddIncomeClicked(self):
         dialog = TransactionEditor(self, transactionType=0, editMode=True)

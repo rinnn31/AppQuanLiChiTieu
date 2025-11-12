@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt, QMargins
 from PySide6.QtCharts import QPieSeries, QChart, QChartView
 from PySide6.QtGui import QPainter, QCursor, QColor, QFont
 
-from ui.widgets.modern_tooltip import CategoryAmountTooltip
-from utils.transaction_style import getMainColorForCategory, getSubColorForCategory, getIconForCategory
+from app.ui.widgets.modern_tooltip import CategoryAmountTooltip
+from app.utils.transaction_style import getMainColorForCategory, getSubColorForCategory, getIconForCategory
 
 class CategoryDonutChart(QWidget): # Lớp kế thừa từ QWidget để hiện thị được lên màn hình
 
@@ -21,11 +21,11 @@ class CategoryDonutChart(QWidget): # Lớp kế thừa từ QWidget để hiện
         self._outerPieSeries = QPieSeries()
         self._innerPieSeries = QPieSeries()
         self._outerPieSeries.setLabelsVisible(False)
-        self._outerPieSeries.setPieSize(0.9) # 0 -> 1 
-        self._outerPieSeries.setHoleSize(0.6)
+        self._outerPieSeries.setPieSize(0.8) # 0 -> 1 
+        self._outerPieSeries.setHoleSize(0.5)
         self._innerPieSeries.setLabelsVisible(False)
-        self._innerPieSeries.setPieSize(0.6)
-        self._innerPieSeries.setHoleSize(0.55)
+        self._innerPieSeries.setPieSize(0.5)
+        self._innerPieSeries.setHoleSize(0.45)
 
         # Tạo QChart để chứa các slice dữ liệu trên
         self._chart = QChart()
@@ -63,13 +63,6 @@ class CategoryDonutChart(QWidget): # Lớp kế thừa từ QWidget để hiện
 
     
     def setData(self, datas: dict[str, int]):
-        '''
-        Dạng dictionary
-        datas: {
-            "tieude1": 100000,
-            "tieude2": 200000,
-            ...}
-        '''
         self._outerPieSeries.clear()
         self._innerPieSeries.clear()
 
@@ -83,7 +76,9 @@ class CategoryDonutChart(QWidget): # Lớp kế thừa từ QWidget để hiện
         
         #
         for category in datas:
-            outerSlice = self._outerPieSeries.append(category, datas[category]) # outerSlice được gán bằng các QPieSilce vừa thêm vào
+            if datas[category] <= 0:
+                continue
+            outerSlice = self._outerPieSeries.append(category, datas[category])
             outerSlice.hovered.connect( partial(self._onSliceHovered, outerSlice, (category, datas[category])))
             '''
             Signal hovered truyền đúng 1 tham số là isHovered đến hàm được connect
@@ -142,11 +137,8 @@ class CategoryDonutChart(QWidget): # Lớp kế thừa từ QWidget để hiện
             self._innerPieSeries.setPieStartAngle(0)
             self._innerPieSeries.setPieEndAngle(360)  
 
-        self._toggleTooltip(slice, item, isHovered) # Hiện thị tooltip
-        
-        #Làm cho slice tách ra khi hover
-        slice.setExplodeDistanceFactor(0.1)
-        slice.setExploded(isHovered and len(self._outerPieSeries.slices()) > 1)
+        self._toggleTooltip(slice, item, isHovered)
+    
 
     def setCenterText(self, text: str, font: QFont = None, color: QColor = None):
         self._centerLb.setText(text)

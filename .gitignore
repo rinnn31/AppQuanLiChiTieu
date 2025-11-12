@@ -1,0 +1,5 @@
+__pycache__/
+data/
+*.py[codz]
+*.env
+*.db

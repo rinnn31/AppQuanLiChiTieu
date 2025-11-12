@@ -3,11 +3,12 @@ from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QLabel, QLineEdit,
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap, QRegularExpressionValidator
 
-from core.transaction import Transaction
-from ui.widgets.date_picker import DatePicker
-from utils.window_helper import applyDropShadow, repolish, installWindowDragging
-from utils.transaction_style import EXPENSE_CATEGORIES, INCOME_CATEGORIES, getIconForCategory, getSubColorForCategory
-from utils.value_formatter import isValidDateString, convertDateStringFormat
+from app.database import Transaction
+from app.ui.widgets.date_picker import DatePicker
+from app.utils.window_helper import applyDropShadow, repolish, installWindowDragging
+from app.utils.transaction_style import EXPENSE_CATEGORIES, INCOME_CATEGORIES, getIconForCategory, getSubColorForCategory
+from app.utils.value_formatter import isValidDateString, convertDateStringFormat
+
 class TransactionEditor(QDialog):
     def __init__(self, parent: QWidget = None, transactionType = 0, editMode: bool = True, transactionId : int = None):
         super().__init__(parent)
@@ -310,14 +311,17 @@ class TransactionEditor(QDialog):
         self.amountEdit.setText(f"{number:,}")
 
     def onConfirmClicked(self):
+        # Lấy dữ liệu từ form
         amount = self.amountEdit.text().replace(",", "")
         date = self.dateEdit.text()
         category = self._getSelectedCategory()
         note = self.noteEdit.text()
 
         self.warningLb.setText("")
+        # Kiêm tra tính hợp lệ của dữ liệu, nếu không hợp lệ thì hiển thị cảnh báo
         if amount == "":
             self.warningLb.setText("Vui lòng nhập số tiền!")
+            # Chuyển sang trạng thái cảnh báo cho ô nhập liệu, viền đỏ
             self.amountEdit.setProperty("warning", True)
             repolish(self.amountEdit)
             return
@@ -341,11 +345,14 @@ class TransactionEditor(QDialog):
             return
         
         formatedDate = convertDateStringFormat(date)
+        # Tạo đối tượng Transaction từ dữ liệu nhập vào
         transaction = Transaction(self._transactionId, int(amount), category, self._transactionType, formatedDate, note)
+        # Nếu có transactionId thì cập nhật giao dịch, ngược lại thêm giao dịch mới
         if self._transactionId:
             self._transactionManager.updateTransaction(transaction)
         else:
             self._transactionManager.addTransaction(transaction)
+        # Đóng hộp thoại và trả về kết quả thành công
         self.accept()
 
     def onDatePickerTriggered(self):

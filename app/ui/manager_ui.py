@@ -19,9 +19,9 @@ from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
     QPushButton, QSizePolicy, QTabWidget, QVBoxLayout,
     QWidget)
 
-from ui.widgets.financial_calendar import FinancialCalendar
-from ui.widgets.transaction_viewer import TransactionViewer
-import resources.resources_rc
+from app.ui.widgets.financial_calendar import FinancialCalendar
+from app.ui.widgets.transaction_viewer import TransactionViewer
+import app.resources.resources_rc
 
 class Ui_ManagerPage(object):
     def setupUi(self, ManagerPage):
