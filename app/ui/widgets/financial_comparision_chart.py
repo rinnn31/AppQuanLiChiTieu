@@ -11,6 +11,10 @@ class FinancialComparisionChart(QWidget):
         
         self._incomeLineSeries = QLineSeries()
         self._incomeAreaSeries = QAreaSeries(self._incomeLineSeries)
+        '''
+        QAreaSeries kế thừa hình dạng của đường line được truyền vào, 
+        và thêm phần “fill” (màu nền) bên dưới đường đó để tạo hiệu ứng vùng.
+        '''
         self._incomeAreaSeries.hovered.connect(self._onHovered)
         color = QColor("#00C853")
         color.setAlpha(95)
@@ -33,10 +37,11 @@ class FinancialComparisionChart(QWidget):
         self._chart.setMargins(QMargins(0,0,0,0))
         self._chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
 
-
+        # Khởi tạo trước trục Y được vì trục cố định chỉ co giãn thêm dữ liệu không tạo mới
+        # Trục x mỗi lần cập nhật dữ liệu phải tạo mới hoàn toàn
         self._amountAxis = QValueAxis()
         self._amountAxis.setLabelFormat("%ik")
-        self._amountAxis.setTitleText("Số tiền (₫))")
+        self._amountAxis.setTitleText("Số tiền (₫)")
         self._timeAxis = None
 
         self._chart.addAxis(self._amountAxis, Qt.AlignLeft)
@@ -80,15 +85,16 @@ class FinancialComparisionChart(QWidget):
         self._expenseLineSeries.clear()
         self._chartView.repaint()
         
-        for i, data in enumerate(datas, 1):
+        for i, data in enumerate(datas, 1): # Danh sách dữ liệu bắt đầu từ 1
             _, income, expense = data
+            # Thêm các điểm vào LineSeries
             self._incomeLineSeries.append(i, income / 1000)
             self._expenseLineSeries.append(i, expense / 1000)
         
         self._updateAmountAxis()
 
-        if timeAxisValues is not None and len(timeAxisValues) > 0:
-            if self._timeAxis in self._chart.axes():
+        if timeAxisValues is not None and len(timeAxisValues) > 0: # Chỉ vẽ lại trục x khi có dữ liệu ngày
+            if self._timeAxis in self._chart.axes(): # Ktra xem trục thời gian có trong đồ thị không 
                 self._chart.removeAxis(self._timeAxis)
 
             delta = len(datas) / (len(timeAxisValues) - 1)
@@ -101,15 +107,18 @@ class FinancialComparisionChart(QWidget):
             for i, v in enumerate(timeAxisValues):
                 self._timeAxis.append(v, 1+ i * delta + delta / 2 )
 
-            self._chart.addAxis(self._timeAxis, Qt.AlignBottom)
+            self._chart.addAxis(self._timeAxis, Qt.AlignBottom) # Thêm trục x vào dưới biểu đồ
+            # Nối 2 vùng chi tiêu vào trục x
             self._incomeAreaSeries.attachAxis(self._timeAxis)
             self._expenseAreaSeries.attachAxis(self._timeAxis)
         
 
-    def _updateAmountAxis(self):
+    def _updateAmountAxis(self): # Cấp nhật lại trục y khi dữ liệu thay đổi
+        # Ktra xem có dữ liệu không tranh việc không có dữ liệu
         if not self._datas or len(self._datas) == 0:
             return
-        maxAmount = max(max(data[1], data[2]) for data in self._datas)
+        
+        maxAmount = max(max(data[1], data[2]) for data in self._datas) # Lấy gti lớn nhất giữ income và expense trong từng ngày
         maxRange = math.ceil(maxAmount * 1.2 / 1000000) * 1000
         
         self._amountAxis.setRange(0, maxRange)

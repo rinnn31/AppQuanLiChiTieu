@@ -38,7 +38,9 @@ class OverviewPage(QWidget):
         curSummary = self.transactionManager.getMonthlySummary(curMonth)
         
         from utils.value_formatter import getShortMoneyString
+        # Tổng thu của từng danh mục dict[str,int]
         incomeCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 0)
+        # Tổng chi của từng danh mục dict[str,int]
         expenseCategories = self.transactionManager.getMonthlyCategoriesAmounts(curMonth, 1)
 
         fnt = QFont("Segoe UI", 14, QFont.Weight.Bold)
@@ -51,21 +53,21 @@ class OverviewPage(QWidget):
         pass
 
     def refreshComparisionData(self):
-        curDate = datetime.datetime.now()
-        lastDate = curDate - datetime.timedelta(days=29)
+        curDate = datetime.datetime.now() # Lấy ngày hiện tại
+        lastDate = curDate - datetime.timedelta(days=29) # Lùi về 29 ngày
 
-        datas = self.transactionManager.getDailyTotalsInPeriod(lastDate, curDate)
+        datas = self.transactionManager.getDailyTotalsInPeriod(lastDate, curDate) # trả về giao dịch trong 1 khoảng thời gian cụ thể
         values = ()
-        xAxisValues = []
-        for i in range(30):
-            day = (lastDate + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        xAxisValues = [] # danh sách gt hiển thị lên trục x
+        for i in range(30): # Duyệt tất cả các ngày từ lastDate-> curDate
+            day = (lastDate + datetime.timedelta(days=i)).strftime("%Y-%m-%d") 
             if day not in datas:
                 values += (day, 0, 0),
             else:
                 income, expense = datas[day]
                 values += (day, income, expense),
 
-        
+        # Tạo danh sách các ngày hiện thị lên trục ox cách nhau 5 ngày
         for i in range(0, 30, 5):
             day = lastDate + datetime.timedelta(days=i)
             xAxisValues.append(day.strftime("%d/%m"))

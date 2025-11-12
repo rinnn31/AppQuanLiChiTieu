@@ -27,7 +27,7 @@ class Ui_OverviewPage(object):
     def setupUi(self, OverviewPage):
         if not OverviewPage.objectName():
             OverviewPage.setObjectName(u"OverviewPage")
-        OverviewPage.resize(1193, 747)
+        OverviewPage.resize(632, 459)
         OverviewPage.setStyleSheet(u"#OverviewPage > QWidget {\n"
 "	background-color: white;\n"
 "	border-radius: 10px\n"
@@ -203,7 +203,7 @@ class Ui_OverviewPage(object):
 
         self.retranslateUi(OverviewPage)
 
-        self.transactionTabs.setCurrentIndex(0)
+        self.transactionTabs.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(OverviewPage)

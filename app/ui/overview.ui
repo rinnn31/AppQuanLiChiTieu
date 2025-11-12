@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1193</width>
-    <height>747</height>
+    <width>632</width>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,7 +138,7 @@ QTabWidget::pane {
          <enum>QTabWidget::TabShape::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="elideMode">
          <enum>Qt::TextElideMode::ElideNone</enum>
