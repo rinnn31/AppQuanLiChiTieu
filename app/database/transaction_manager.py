@@ -93,6 +93,7 @@ class TransactionManager:
                         total_expense = total_expense - CASE WHEN OLD.type = 1 THEN OLD.amount ELSE 0 END,
                         transaction_count = transaction_count - 1
                     WHERE month = strftime('%Y-%m', OLD.date);
+                                
                     -- Nếu tháng mới chưa có thống kê → thêm mới
                     INSERT INTO monthly_summaries (month, total_income, total_expense, transaction_count)
                     VALUES (strftime('%Y-%m', NEW.date), 
@@ -179,8 +180,7 @@ class TransactionManager:
         if endDate:
             conditions.append(f"date <= '{endDate.strftime('%Y-%m-%d')}'")
         if keyword:
-            like_pattern = f"%{keyword}%"
-            conditions.append(f"(note LIKE '{like_pattern}' OR category LIKE '{like_pattern}')")
+            conditions.append(f"(note LIKE ? OR category LIKE ?)")
 
         if conditions:
             query += ' WHERE ' + ' AND '.join(conditions) # Where date > "2023-12-23" AND date < "2023-12-30" AND note LIKE "%feefef%"
@@ -188,8 +188,12 @@ class TransactionManager:
         query += ' ORDER BY date DESC'
         if limit:
             query += f' LIMIT {limit}'
-        
-        cursor = self.conn.execute(query)
+    
+        if keyword:
+            keyword = f"%{keyword}%"
+            cursor = self.conn.execute(query, (keyword, keyword))
+        else:
+            cursor = self.conn.execute(query)
         rows = cursor.fetchall()
         return [Transaction(id=row['id'], date=row['date'], amount=row['amount'], note=row['note'], category=row['category'], type=row['type']) for row in rows]
     
